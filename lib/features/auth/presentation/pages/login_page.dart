@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../core/extensions/color_extensions.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../widgets/widgets.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,7 +14,6 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -24,12 +25,7 @@ class _LoginPageState extends State<LoginPage> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       // Futura lógica de Login com Riverpod + Supabase
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Entrando...'),
-          backgroundColor: AppTheme.primaryAccentColor,
-        ),
-      );
+      AppToast.success(context, message: 'Entrando...');
     }
   }
 
@@ -56,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.appOpacity(0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           ),
@@ -79,33 +75,24 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 24),
                   // Título principal
-                  const Text(
+                  const AppText.titleLarge(
                     'Tha Unhas',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C2520),
-                    ),
+                    fontWeight: FontWeight.bold,
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  const AppText.bodyMedium(
                     'Agende seus horários com facilidade',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
+                    color: Colors.grey,
                   ),
                   const SizedBox(height: 40),
                   // Input Email
-                  TextFormField(
+                  AppTextField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'E-mail',
-                      prefixIcon: Icon(Icons.email_outlined, color: AppTheme.primaryAccentColor),
-                    ),
+                    labelText: 'E-mail',
+                    prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.primaryAccentColor),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira seu e-mail';
@@ -117,25 +104,12 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  // Input Senha
-                  TextFormField(
+                  // Input Senha (obscureText: true ativa automaticamente o botão de toggle interno)
+                  AppTextField(
                     controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    decoration: InputDecoration(
-                      labelText: 'Senha',
-                      prefixIcon: const Icon(Icons.lock_outlined, color: AppTheme.primaryAccentColor),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                          color: AppTheme.primaryAccentColor,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                      ),
-                    ),
+                    obscureText: true,
+                    labelText: 'Senha',
+                    prefixIcon: const Icon(Icons.lock_outlined, color: AppTheme.primaryAccentColor),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira sua senha';
@@ -148,31 +122,28 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 24),
                   // Botão de Login
-                  ElevatedButton(
+                  AppButton.filled(
+                    text: 'Entrar',
                     onPressed: _submit,
-                    child: const Text('Entrar'),
                   ),
                   const SizedBox(height: 16),
                   // Botão de Cadastro
-                  TextButton(
-                    onPressed: () {
-                      // Ir para cadastro
-                    },
-                    child: RichText(
-                      text: const TextSpan(
-                        text: 'Não tem uma conta? ',
-                        style: TextStyle(color: Colors.grey, fontSize: 14),
-                        children: [
-                          TextSpan(
-                            text: 'Cadastre-se',
-                            style: TextStyle(
-                              color: AppTheme.primaryAccentColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const AppText.bodyMedium(
+                        'Não tem uma conta? ',
+                        color: Colors.grey,
                       ),
-                    ),
+                      AppButton.text(
+                        text: 'Cadastre-se',
+                        width: null,
+                        height: 40,
+                        onPressed: () {
+                          // Ir para cadastro
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
