@@ -1,7 +1,16 @@
-// Configuração de providers do Riverpod para a área da sua irmã.
-/*
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../domain/entities/admin_stats_entity.dart';
 
-final adminStatsProvider = StateProvider<AdminStatsEntity?>((ref) => null);
-*/
+part 'admin_provider.g.dart';
+
+@riverpod
+class AdminStats extends _$AdminStats {
+  @override
+  AdminStatsEntity? build() {
+    return null;
+  }
+
+  void updateStats(AdminStatsEntity stats) {
+    state = stats;
+  }
+}

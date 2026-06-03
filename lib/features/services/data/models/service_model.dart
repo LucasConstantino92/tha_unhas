@@ -6,6 +6,8 @@ class ServiceModel extends ServiceEntity {
     required super.name,
     required super.price,
     required super.durationMinutes,
+    required super.createdAt,
+    required super.updatedAt,
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
@@ -14,6 +16,8 @@ class ServiceModel extends ServiceEntity {
       name: json['name'] as String,
       price: (json['price'] as num).toDouble(),
       durationMinutes: json['duration_minutes'] as int? ?? 30,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
     );
   }
 
@@ -23,6 +27,8 @@ class ServiceModel extends ServiceEntity {
       'name': name,
       'price': price,
       'duration_minutes': durationMinutes,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
     };
   }
 }

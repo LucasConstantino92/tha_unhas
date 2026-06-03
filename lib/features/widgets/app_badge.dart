@@ -135,12 +135,16 @@ class AppBadge extends StatelessWidget {
             ),
             const SizedBox(width: 4),
           ],
-          Text(
-            label,
-            style: TextStyle(
-              color: txtColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: txtColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
         ],

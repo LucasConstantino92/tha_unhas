@@ -103,7 +103,13 @@ class AppButton extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
               ],
-              Text(text),
+              Flexible(
+                child: Text(
+                  text,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
             ],
           );
 

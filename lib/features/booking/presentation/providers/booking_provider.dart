@@ -1,8 +1,31 @@
-// Estrutura básica para os providers do Riverpod referente aos agendamentos.
-// Uma vez instalada a biblioteca flutter_riverpod, utilize Notifier/AsyncNotifier.
-/*
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/entities/booking_entity.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../data/datasources/booking_remote_datasource.dart';
+import '../../data/repositories/booking_repository_impl.dart';
+import '../../domain/entities/appointment_entity.dart';
+import '../../domain/repositories/booking_repository.dart';
 
-final bookingsListProvider = StateProvider<List<BookingEntity>>((ref) => []);
-*/
+part 'booking_provider.g.dart';
+
+@riverpod
+BookingRemoteDatasource bookingRemoteDatasource(BookingRemoteDatasourceRef ref) {
+  return BookingRemoteDatasourceImpl();
+}
+
+@riverpod
+BookingRepository bookingRepository(BookingRepositoryRef ref) {
+  return BookingRepositoryImpl(
+    remoteDatasource: ref.watch(bookingRemoteDatasourceProvider),
+  );
+}
+
+@riverpod
+class BookingsList extends _$BookingsList {
+  @override
+  List<AppointmentEntity> build() {
+    return [];
+  }
+
+  void setBookings(List<AppointmentEntity> list) {
+    state = list;
+  }
+}

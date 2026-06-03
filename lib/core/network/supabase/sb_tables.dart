@@ -2,9 +2,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'sb_helpers.dart';
 
 enum SBTables {
-  userProfile('user_profile'),
+  userProfile('user_profiles'),
   services('services'),
-  bookings('bookings'),
+  appointments('appointments'),
   adminStats('admin_stats');
 
   const SBTables(this.tableName);

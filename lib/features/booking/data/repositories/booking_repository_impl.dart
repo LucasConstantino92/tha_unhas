@@ -1,7 +1,7 @@
-import '../../domain/entities/booking_entity.dart';
+import '../../domain/entities/appointment_entity.dart';
 import '../../domain/repositories/booking_repository.dart';
 import '../datasources/booking_remote_datasource.dart';
-import '../models/booking_model.dart';
+import '../models/appointment_model.dart';
 
 class BookingRepositoryImpl implements BookingRepository {
   final BookingRemoteDatasource remoteDatasource;
@@ -9,18 +9,22 @@ class BookingRepositoryImpl implements BookingRepository {
   BookingRepositoryImpl({required this.remoteDatasource});
 
   @override
-  Future<List<BookingEntity>> getBookings(String userId) {
+  Future<List<AppointmentEntity>> getBookings(String userId) {
     return remoteDatasource.getBookings(userId);
   }
 
   @override
-  Future<BookingEntity> createBooking(BookingEntity booking) {
-    final model = BookingModel(
+  Future<AppointmentEntity> createBooking(AppointmentEntity booking) {
+    final model = AppointmentModel(
       id: booking.id,
       userId: booking.userId,
-      dateTime: booking.dateTime,
-      serviceName: booking.serviceName,
+      serviceId: booking.serviceId,
+      startTime: booking.startTime,
+      endTime: booking.endTime,
       status: booking.status,
+      paidPrice: booking.paidPrice,
+      createdAt: booking.createdAt,
+      updatedAt: booking.updatedAt,
     );
     return remoteDatasource.createBooking(model);
   }

@@ -20,6 +20,8 @@ class ServicesRepositoryImpl implements ServicesRepository {
       name: service.name,
       price: service.price,
       durationMinutes: service.durationMinutes,
+      createdAt: service.createdAt,
+      updatedAt: service.updatedAt,
     );
     return remoteDatasource.addService(model);
   }
@@ -31,6 +33,8 @@ class ServicesRepositoryImpl implements ServicesRepository {
       name: service.name,
       price: service.price,
       durationMinutes: service.durationMinutes,
+      createdAt: service.createdAt,
+      updatedAt: service.updatedAt,
     );
     return remoteDatasource.updateService(model);
   }

@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../widgets/widgets.dart';
 import '../providers/auth_provider.dart';
-import 'home_page.dart';
+
+import '../../../navigation/presentation/pages/main_scaffold_page.dart';
 import 'login_page.dart';
+import 'profile_setup_page.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -36,14 +38,25 @@ class _SplashPageState extends ConsumerState<SplashPage> with SingleTickerProvid
 
     if (!mounted) return;
 
-    final user = await ref.read(authStateProvider.notifier).checkSession();
+    final user = await ref.read(authProvider.notifier).checkSession();
 
     if (!mounted) return;
 
     if (user != null) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomePage()),
-      );
+      if (user.name.isEmpty) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => ProfileSetupPage(
+              userId: user.id,
+              email: user.email,
+            ),
+          ),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const MainScaffoldPage()),
+        );
+      }
     } else {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const LoginPage()),

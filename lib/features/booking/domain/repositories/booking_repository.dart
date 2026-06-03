@@ -1,7 +1,7 @@
-import '../entities/booking_entity.dart';
+import '../entities/appointment_entity.dart';
 
 abstract class BookingRepository {
-  Future<List<BookingEntity>> getBookings(String userId);
-  Future<BookingEntity> createBooking(BookingEntity booking);
+  Future<List<AppointmentEntity>> getBookings(String userId);
+  Future<AppointmentEntity> createBooking(AppointmentEntity booking);
   Future<void> cancelBooking(String bookingId);
 }

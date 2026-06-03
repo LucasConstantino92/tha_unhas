@@ -5,6 +5,7 @@ class UserModel extends UserProfile {
     required super.id,
     required super.email,
     required super.name,
+    required super.phone,
     required super.role,
   });
 
@@ -12,12 +13,13 @@ class UserModel extends UserProfile {
     return UserModel(
       id: json['id'] as String,
       email: json['email'] as String,
-      name: json['nome'] as String? ?? '',
+      name: (json['name'] ?? json['nome'] ?? '') as String,
+      phone: json['phone'] as String? ?? '',
       role: json['role'] as String? ?? 'user',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'email': email, 'nome': name, 'role': role};
+    return {'id': id, 'email': email, 'name': name, 'phone': phone, 'role': role};
   }
 }

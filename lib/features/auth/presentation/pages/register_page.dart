@@ -1,30 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/extensions/color_extensions.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../widgets/widgets.dart';
 import '../providers/auth_provider.dart';
+import 'profile_setup_page.dart';
 
-import '../../../navigation/presentation/pages/main_scaffold_page.dart';
-import 'register_page.dart';
-
-class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends ConsumerStatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  ConsumerState<LoginPage> createState() => _LoginPageState();
+  ConsumerState<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends ConsumerState<LoginPage> {
+class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -32,27 +31,32 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
-        final user = await ref.read(authProvider.notifier).login(
-              _emailController.text.trim(),
-              _passwordController.text.trim(),
-            );
+        final email = _emailController.text.trim();
+        final password = _passwordController.text.trim();
 
-        if (user != null) {
+        // 1. Sign Up in Supabase Auth
+        final userId = await ref.read(authProvider.notifier).signUp(email, password);
+
+        if (userId != null) {
           if (mounted) {
-            AppToast.success(context, message: 'Bem-vindo de volta!');
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const MainScaffoldPage()),
-              (route) => false,
+            AppToast.success(context, message: 'Conta criada! Agora preencha seu perfil.');
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => ProfileSetupPage(
+                  userId: userId,
+                  email: email,
+                ),
+              ),
             );
           }
         } else {
           if (mounted) {
-            AppToast.error(context, message: 'E-mail ou senha incorretos.');
+            AppToast.error(context, message: 'Falha ao criar conta. Tente novamente.');
           }
         }
       } catch (e) {
         if (mounted) {
-          AppToast.error(context, message: 'Erro ao entrar: $e');
+          AppToast.error(context, message: 'Erro ao cadastrar: $e');
         }
       } finally {
         if (mounted) {
@@ -65,6 +69,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Criar Conta'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -75,47 +88,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Logo/Ícone do App Placeholder
-                  Center(
-                    child: Container(
-                      height: 120,
-                      width: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.appOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: ClipOval(
-                        child: Image.asset(
-                          'assets/icons/ic_app.jpg',
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.spa_outlined,
-                              size: 60,
-                              color: AppTheme.primaryAccentColor,
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Título principal
                   const AppText.titleLarge(
-                    'Tha Unhas',
+                    'Comece sua Jornada',
                     textAlign: TextAlign.center,
                     fontWeight: FontWeight.bold,
                   ),
                   const SizedBox(height: 8),
                   const AppText.bodyMedium(
-                    'Agende seus horários com facilidade',
+                    'Crie sua conta para começar a agendar',
                     textAlign: TextAlign.center,
                     color: Colors.grey,
                   ),
@@ -137,7 +117,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  // Input Senha (obscureText: true ativa automaticamente o botão de toggle interno)
+                  // Input Senha
                   AppTextField(
                     controller: _passwordController,
                     obscureText: true,
@@ -153,36 +133,31 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 24),
-                  // Botão de Login
+                  const SizedBox(height: 16),
+                  // Input Confirmar Senha
+                  AppTextField(
+                    controller: _confirmPasswordController,
+                    obscureText: true,
+                    labelText: 'Confirmar Senha',
+                    prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppTheme.primaryAccentColor),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor, confirme sua senha';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'As senhas não coincidem';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 32),
+                  // Botão de Cadastro
                   _isLoading
                       ? const Center(child: AppLoading(color: AppTheme.primaryAccentColor))
                       : AppButton.filled(
-                          text: 'Entrar',
+                          text: 'Próximo Passo',
                           onPressed: _submit,
                         ),
-                  const SizedBox(height: 16),
-                  // Botão de Cadastro
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      const AppText.bodyMedium(
-                        'Não tem uma conta? ',
-                        color: Colors.grey,
-                      ),
-                      AppButton.text(
-                        text: 'Cadastre-se',
-                        width: null,
-                        height: 40,
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const RegisterPage()),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),

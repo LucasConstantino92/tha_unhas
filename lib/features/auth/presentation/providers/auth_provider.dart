@@ -1,48 +1,59 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 
-final authRemoteDatasourceProvider = Provider<AuthRemoteDatasource>((ref) {
-  return AuthRemoteDatasourceImpl();
-});
+part 'auth_provider.g.dart';
 
-final authRepositoryProvider = Provider<AuthRepository>((ref) {
+@riverpod
+AuthRemoteDatasource authRemoteDatasource(AuthRemoteDatasourceRef ref) {
+  return AuthRemoteDatasourceImpl();
+}
+
+@riverpod
+AuthRepository authRepository(AuthRepositoryRef ref) {
   return AuthRepositoryImpl(
     remoteDatasource: ref.watch(authRemoteDatasourceProvider),
   );
-});
+}
 
-class AuthNotifier extends StateNotifier<UserProfile?> {
-  final AuthRepository _authRepository;
-
-  AuthNotifier(this._authRepository) : super(null);
+@riverpod
+class Auth extends _$Auth {
+  @override
+  UserProfile? build() {
+    return null;
+  }
 
   Future<UserProfile?> checkSession() async {
-    final user = await _authRepository.getCurrentUser();
+    final user = await ref.read(authRepositoryProvider).getCurrentUser();
     state = user;
     return user;
   }
 
   Future<UserProfile?> login(String email, String password) async {
-    final user = await _authRepository.login(email, password);
+    final user = await ref.read(authRepositoryProvider).login(email, password);
     state = user;
     return user;
   }
 
   Future<UserProfile?> register(String name, String email, String password) async {
-    final user = await _authRepository.register(name, email, password);
+    final user = await ref.read(authRepositoryProvider).register(name, email, password);
     state = user;
     return user;
   }
 
+  Future<String?> signUp(String email, String password) async {
+    return ref.read(authRepositoryProvider).signUp(email, password);
+  }
+
+  Future<void> createUserProfile(UserProfile profile) async {
+    await ref.read(authRepositoryProvider).createUserProfile(profile);
+    state = profile;
+  }
+
   Future<void> logout() async {
-    await _authRepository.logout();
+    await ref.read(authRepositoryProvider).logout();
     state = null;
   }
 }
-
-final authStateProvider = StateNotifierProvider<AuthNotifier, UserProfile?>((ref) {
-  return AuthNotifier(ref.watch(authRepositoryProvider));
-});
