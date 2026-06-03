@@ -3,7 +3,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/supabase_config.dart';
 import 'core/theme/app_theme.dart';
-import 'features/auth/presentation/pages/login_page.dart';
+import 'features/auth/presentation/pages/splash_page.dart';
 
 void main() async {
   // Preserva a splash screen durante a inicialização
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       // Como solicitado, sempre inicia no tema Light
       themeMode: ThemeMode.light,
-      home: const LoginPage(),
+      home: const SplashPage(),
     );
   }
 }

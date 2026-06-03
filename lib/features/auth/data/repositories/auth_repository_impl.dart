@@ -8,12 +8,12 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({required this.remoteDatasource});
 
   @override
-  Future<UserEntity?> login(String email, String password) {
+  Future<UserProfile?> login(String email, String password) {
     return remoteDatasource.login(email, password);
   }
 
   @override
-  Future<UserEntity?> register(String name, String email, String password) {
+  Future<UserProfile?> register(String name, String email, String password) {
     return remoteDatasource.register(name, email, password);
   }
 
@@ -23,7 +23,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserEntity?> getCurrentUser() {
+  Future<UserProfile?> getCurrentUser() {
     return remoteDatasource.getCurrentUser();
   }
 }

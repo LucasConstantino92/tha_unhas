@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/extensions/color_extensions.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../widgets/widgets.dart';
+import '../providers/auth_provider.dart';
+import 'home_page.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -22,10 +26,36 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
-      // Futura lógica de Login com Riverpod + Supabase
-      AppToast.success(context, message: 'Entrando...');
+      setState(() => _isLoading = true);
+      try {
+        final user = await ref.read(authStateProvider.notifier).login(
+              _emailController.text.trim(),
+              _passwordController.text.trim(),
+            );
+
+        if (user != null) {
+          if (mounted) {
+            AppToast.success(context, message: 'Bem-vindo de volta!');
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const HomePage()),
+            );
+          }
+        } else {
+          if (mounted) {
+            AppToast.error(context, message: 'E-mail ou senha incorretos.');
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          AppToast.error(context, message: 'Erro ao entrar: $e');
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
     }
   }
 
@@ -122,10 +152,12 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 24),
                   // Botão de Login
-                  AppButton.filled(
-                    text: 'Entrar',
-                    onPressed: _submit,
-                  ),
+                  _isLoading
+                      ? const Center(child: AppLoading(color: AppTheme.primaryAccentColor))
+                      : AppButton.filled(
+                          text: 'Entrar',
+                          onPressed: _submit,
+                        ),
                   const SizedBox(height: 16),
                   // Botão de Cadastro
                   Row(

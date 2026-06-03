@@ -1,8 +1,8 @@
-import '../entities/user_entity.dart';
+import 'package:tha_unhas/features/auth/domain/entities/user_entity.dart';
 
 abstract class AuthRepository {
-  Future<UserEntity?> login(String email, String password);
-  Future<UserEntity?> register(String name, String email, String password);
+  Future<UserProfile?> login(String email, String password);
+  Future<UserProfile?> register(String name, String email, String password);
   Future<void> logout();
-  Future<UserEntity?> getCurrentUser();
+  Future<UserProfile?> getCurrentUser();
 }
