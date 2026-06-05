@@ -49,4 +49,14 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<UserProfile?> getUserProfile(String userId) {
     return remoteDatasource.getUserProfile(userId);
   }
+
+  @override
+  Future<void> updateProfile(String userId, String name, String phone) {
+    return remoteDatasource.updateProfile(userId, name, phone);
+  }
+
+  @override
+  Future<void> softDeleteUser(String userId) {
+    return remoteDatasource.softDeleteUser(userId);
+  }
 }

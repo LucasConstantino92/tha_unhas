@@ -8,4 +8,6 @@ abstract class AuthRepository {
   Future<String?> signUp(String email, String password);
   Future<void> createUserProfile(UserProfile profile);
   Future<UserProfile?> getUserProfile(String userId);
+  Future<void> updateProfile(String userId, String name, String phone);
+  Future<void> softDeleteUser(String userId);
 }

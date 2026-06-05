@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/datasources/services_remote_datasource.dart';
 import '../../data/repositories/services_repository_impl.dart';
@@ -21,11 +22,31 @@ ServicesRepository servicesRepository(ServicesRepositoryRef ref) {
 @riverpod
 class ServicesList extends _$ServicesList {
   @override
-  List<ServiceEntity> build() {
-    return [];
+  FutureOr<List<ServiceEntity>> build() async {
+    return ref.watch(servicesRepositoryProvider).getActiveServices();
   }
 
-  void setServices(List<ServiceEntity> list) {
-    state = list;
+  Future<void> addService(ServiceEntity service) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(servicesRepositoryProvider).addService(service);
+      return ref.read(servicesRepositoryProvider).getActiveServices();
+    });
+  }
+
+  Future<void> updateService(ServiceEntity service) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(servicesRepositoryProvider).updateService(service);
+      return ref.read(servicesRepositoryProvider).getActiveServices();
+    });
+  }
+
+  Future<void> deleteService(String serviceId) async {
+    state = const AsyncLoading<List<ServiceEntity>>().copyWithPrevious(state);
+    state = await AsyncValue.guard(() async {
+      await ref.read(servicesRepositoryProvider).deleteService(serviceId);
+      return ref.read(servicesRepositoryProvider).getActiveServices();
+    });
   }
 }

@@ -20,6 +20,13 @@ class UserModel extends UserProfile {
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'email': email, 'name': name, 'phone': phone, 'role': role};
+    return {
+      'id': id,
+      'email': email,
+      'name': name,
+      'nome': name,
+      'phone': phone,
+      'role': role,
+    };
   }
 }

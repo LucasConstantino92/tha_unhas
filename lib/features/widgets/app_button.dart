@@ -126,7 +126,6 @@ class AppButton extends StatelessWidget {
       case AppButtonVariant.filled:
         return SizedBox(
           width: width ?? double.infinity,
-          height: height,
           child: ElevatedButton(
             onPressed: isClickable ? onPressed : null,
             style: buttonStyle.copyWith(
@@ -146,7 +145,6 @@ class AppButton extends StatelessWidget {
       case AppButtonVariant.outlined:
         return SizedBox(
           width: width ?? double.infinity,
-          height: height,
           child: OutlinedButton(
             onPressed: isClickable ? onPressed : null,
             style: OutlinedButton.styleFrom(
@@ -169,7 +167,6 @@ class AppButton extends StatelessWidget {
       case AppButtonVariant.text:
         return SizedBox(
           width: width,
-          height: height,
           child: TextButton(
             onPressed: isClickable ? onPressed : null,
             style: TextButton.styleFrom(
@@ -177,7 +174,7 @@ class AppButton extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              minimumSize: width != null ? Size(width!, height) : null,
+              minimumSize: Size(width ?? 0.0, height),
             ),
             child: content,
           ),

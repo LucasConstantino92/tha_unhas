@@ -10,6 +10,8 @@ abstract class AuthRemoteDatasource {
   Future<String?> signUp(String email, String password);
   Future<void> createUserProfile(UserModel profile);
   Future<UserModel?> getUserProfile(String userId);
+  Future<void> updateProfile(String userId, String name, String phone);
+  Future<void> softDeleteUser(String userId);
 }
 
 class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
@@ -162,6 +164,38 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
     } catch (e, stack) {
       AppLogger.error('Erro no fluxo getCurrentUser', e, stack, 'AuthRemoteDatasource');
       return null;
+    }
+  }
+
+  @override
+  Future<void> updateProfile(String userId, String name, String phone) async {
+    try {
+      AppLogger.info('Atualizando perfil de usuário: $userId', 'AuthRemoteDatasource');
+      await _supabaseClient.from('user_profiles').update({
+        'name': name,
+        'nome': name,
+        'phone': phone,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }).eq('id', userId);
+      AppLogger.success('Perfil atualizado com sucesso: $userId', 'AuthRemoteDatasource');
+    } catch (e, stack) {
+      AppLogger.error('Erro ao atualizar perfil do usuário: $userId', e, stack, 'AuthRemoteDatasource');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> softDeleteUser(String userId) async {
+    try {
+      AppLogger.info('Soft deleting usuário: $userId', 'AuthRemoteDatasource');
+      await _supabaseClient.from('user_profiles').update({
+        'deleted_at': DateTime.now().toUtc().toIso8601String(),
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }).eq('id', userId);
+      AppLogger.success('Usuário soft deleted com sucesso: $userId', 'AuthRemoteDatasource');
+    } catch (e, stack) {
+      AppLogger.error('Erro ao fazer soft delete do usuário: $userId', e, stack, 'AuthRemoteDatasource');
+      rethrow;
     }
   }
 }

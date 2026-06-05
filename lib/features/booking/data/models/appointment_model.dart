@@ -11,9 +11,15 @@ class AppointmentModel extends AppointmentEntity {
     required super.paidPrice,
     required super.createdAt,
     required super.updatedAt,
+    super.clientName,
+    super.clientPhone,
+    super.serviceName,
   });
 
   factory AppointmentModel.fromJson(Map<String, dynamic> json) {
+    final userProfiles = json['user_profiles'] as Map<String, dynamic>?;
+    final services = json['services'] as Map<String, dynamic>?;
+
     return AppointmentModel(
       id: json['id'] as String,
       userId: json['user_id'] as String,
@@ -24,6 +30,9 @@ class AppointmentModel extends AppointmentEntity {
       paidPrice: (json['paid_price'] as num).toDouble(),
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
+      clientName: userProfiles != null ? (userProfiles['nome'] ?? userProfiles['name']) as String? : null,
+      clientPhone: userProfiles != null ? userProfiles['phone'] as String? : null,
+      serviceName: services != null ? services['name'] as String? : null,
     );
   }
 
@@ -32,12 +41,12 @@ class AppointmentModel extends AppointmentEntity {
       'id': id,
       'user_id': userId,
       'service_id': serviceId,
-      'start_time': startTime.toIso8601String(),
-      'end_time': endTime.toIso8601String(),
+      'start_time': startTime.toUtc().toIso8601String(),
+      'end_time': endTime.toUtc().toIso8601String(),
       'status': status,
       'paid_price': paidPrice,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
+      'created_at': createdAt.toUtc().toIso8601String(),
+      'updated_at': updatedAt.toUtc().toIso8601String(),
     };
   }
 }

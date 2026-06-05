@@ -44,12 +44,15 @@ final bookingRepositoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef BookingRepositoryRef = AutoDisposeProviderRef<BookingRepository>;
-String _$bookingsListHash() => r'b763fe1e8dcedba358f67ed9b4529ea12bde3d21';
+String _$bookingsListHash() => r'7659685a96f02d200cd538c2327d5f7479e167db';
 
 /// See also [BookingsList].
 @ProviderFor(BookingsList)
 final bookingsListProvider =
-    AutoDisposeNotifierProvider<BookingsList, List<AppointmentEntity>>.internal(
+    AutoDisposeAsyncNotifierProvider<
+      BookingsList,
+      List<AppointmentEntity>
+    >.internal(
       BookingsList.new,
       name: r'bookingsListProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -59,6 +62,6 @@ final bookingsListProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$BookingsList = AutoDisposeNotifier<List<AppointmentEntity>>;
+typedef _$BookingsList = AutoDisposeAsyncNotifier<List<AppointmentEntity>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

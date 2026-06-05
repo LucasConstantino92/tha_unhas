@@ -5,7 +5,8 @@ enum SBTables {
   userProfile('user_profiles'),
   services('services'),
   appointments('appointments'),
-  adminStats('admin_stats');
+  adminStats('admin_stats'),
+  workSchedules('work_schedules');
 
   const SBTables(this.tableName);
   final String tableName;

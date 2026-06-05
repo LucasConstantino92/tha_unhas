@@ -45,12 +45,15 @@ final servicesRepositoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ServicesRepositoryRef = AutoDisposeProviderRef<ServicesRepository>;
-String _$servicesListHash() => r'c5e99edb5c6715365feda73f3f51af779ac83fe0';
+String _$servicesListHash() => r'8d8ee26b510b6cef3b40eb11c9034f5ee1fcbe97';
 
 /// See also [ServicesList].
 @ProviderFor(ServicesList)
 final servicesListProvider =
-    AutoDisposeNotifierProvider<ServicesList, List<ServiceEntity>>.internal(
+    AutoDisposeAsyncNotifierProvider<
+      ServicesList,
+      List<ServiceEntity>
+    >.internal(
       ServicesList.new,
       name: r'servicesListProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -60,6 +63,6 @@ final servicesListProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$ServicesList = AutoDisposeNotifier<List<ServiceEntity>>;
+typedef _$ServicesList = AutoDisposeAsyncNotifier<List<ServiceEntity>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -8,6 +8,9 @@ class AppointmentEntity {
   final double paidPrice;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? clientName;
+  final String? clientPhone;
+  final String? serviceName;
 
   const AppointmentEntity({
     required this.id,
@@ -19,5 +22,8 @@ class AppointmentEntity {
     required this.paidPrice,
     required this.createdAt,
     required this.updatedAt,
+    this.clientName,
+    this.clientPhone,
+    this.serviceName,
   });
 }

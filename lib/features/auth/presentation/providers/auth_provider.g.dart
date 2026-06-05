@@ -42,11 +42,11 @@ final authRepositoryProvider = AutoDisposeProvider<AuthRepository>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AuthRepositoryRef = AutoDisposeProviderRef<AuthRepository>;
-String _$authHash() => r'934290d033dc445af4a33e145ce8156efcb5945b';
+String _$authHash() => r'4e3b15ef48b34711b2cd0bf63c29032079e8f210';
 
 /// See also [Auth].
 @ProviderFor(Auth)
-final authProvider = AutoDisposeNotifierProvider<Auth, UserProfile?>.internal(
+final authProvider = NotifierProvider<Auth, UserProfile?>.internal(
   Auth.new,
   name: r'authProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -56,6 +56,6 @@ final authProvider = AutoDisposeNotifierProvider<Auth, UserProfile?>.internal(
   allTransitiveDependencies: null,
 );
 
-typedef _$Auth = AutoDisposeNotifier<UserProfile?>;
+typedef _$Auth = Notifier<UserProfile?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

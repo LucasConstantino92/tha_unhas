@@ -1,37 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/appointment_status.dart';
 import '../../../widgets/widgets.dart';
 import '../providers/auth_provider.dart';
 import '../../../navigation/presentation/providers/navigation_provider.dart';
-import 'login_page.dart';
+import '../../../booking/presentation/providers/booking_provider.dart';
+import '../../../booking/presentation/pages/new_booking_page.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authProvider);
-    // Mock appointments for now, until we connect to the provider
-    final mockAppointments = []; 
+    final user = ref.sb;
+    final bookingsAsync = ref.watch(bookingsListProvider);
+    final bookings = bookingsAsync.valueOrNull ?? []; 
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Olá, ${user?.name ?? "Cliente"}!'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout_outlined, color: AppTheme.secondaryAccentColor),
-            onPressed: () async {
-              await ref.read(authProvider.notifier).logout();
-              if (context.mounted) {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
-                  (route) => false,
-                );
-              }
-            },
-          ),
-        ],
+        title: Text('Olá, ${user.name}!'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -46,7 +35,7 @@ class HomePage extends ConsumerWidget {
                     'Histórico de Agendamentos',
                     fontWeight: FontWeight.bold,
                   ),
-                  if (mockAppointments.isNotEmpty)
+                  if (bookings.isNotEmpty)
                     TextButton(
                       onPressed: () {
                         // Change to AGENDA tab (index 1)
@@ -57,7 +46,7 @@ class HomePage extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              if (mockAppointments.isEmpty)
+              if (bookings.isEmpty)
                 // Empty state
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 32.0),
@@ -83,8 +72,35 @@ class HomePage extends ConsumerWidget {
                 // Last 3 appointments
                 Column(
                   children: List.generate(
-                    mockAppointments.length > 3 ? 3 : mockAppointments.length,
+                    bookings.length > 3 ? 3 : bookings.length,
                     (index) {
+                      final booking = bookings[index];
+                      final serviceName = booking.serviceName ?? 'Serviço';
+                      final formattedDate = DateFormat('dd/MM/yyyy - HH:mm').format(booking.startTime.toLocal());
+                      
+                      // Definir cor/label do status
+                      final statusEnum = AppointmentStatus.fromValue(booking.status);
+                      Widget statusBadge;
+                      switch (statusEnum) {
+                        case AppointmentStatus.confirmed:
+                          statusBadge = AppBadge.success(label: statusEnum.label);
+                          break;
+                        case AppointmentStatus.cancelled:
+                          statusBadge = AppBadge.error(label: statusEnum.label);
+                          break;
+                        case AppointmentStatus.noShow:
+                          statusBadge = AppBadge.secondary(label: statusEnum.label);
+                          break;
+                        case AppointmentStatus.inProgress:
+                          statusBadge = AppBadge.primary(label: statusEnum.label);
+                          break;
+                        case AppointmentStatus.completed:
+                          statusBadge = AppBadge.success(label: statusEnum.label);
+                          break;
+                        case AppointmentStatus.pending:
+                          statusBadge = AppBadge.warning(label: statusEnum.label);
+                      }
+
                       return AppCard(
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(16),
@@ -96,11 +112,13 @@ class HomePage extends ConsumerWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  AppText.bodyMedium('Agendamento', fontWeight: FontWeight.bold),
-                                  AppText.bodySmall('Detalhes em breve...', color: Colors.grey),
+                                  AppText.bodyMedium(serviceName, fontWeight: FontWeight.bold),
+                                  const SizedBox(height: 4),
+                                  AppText.bodySmall(formattedDate, color: Colors.grey),
                                 ],
                               ),
                             ),
+                            statusBadge,
                           ],
                         ),
                       );
@@ -111,7 +129,9 @@ class HomePage extends ConsumerWidget {
               AppButton.filled(
                 text: 'Agendar Novo Horário',
                 onPressed: () {
-                  AppToast.info(context, message: 'Agendamento em breve!');
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const NewBookingPage()),
+                  );
                 },
               ),
             ],

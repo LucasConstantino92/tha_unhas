@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../utils/date_time_extensions.dart';
+import '../../extensions/date_time_extensions.dart';
 import 'sb_tables.dart';
 
 typedef Json = Map<String, dynamic>;
