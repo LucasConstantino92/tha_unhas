@@ -43,7 +43,7 @@ class _SplashPageState extends ConsumerState<SplashPage> with SingleTickerProvid
     if (!mounted) return;
 
     if (user != null) {
-      if (user.name.isEmpty) {
+      if (user.name.trim().isEmpty || user.phone.trim().isEmpty) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (_) => ProfileSetupPage(

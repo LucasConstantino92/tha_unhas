@@ -8,6 +8,7 @@ import '../providers/auth_provider.dart';
 
 import '../../../navigation/presentation/pages/main_scaffold_page.dart';
 import 'register_page.dart';
+import 'profile_setup_page.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -41,10 +42,22 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         if (user != null) {
           if (mounted) {
             AppToast.success(context, message: 'Bem-vindo de volta!');
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const MainScaffoldPage()),
-              (route) => false,
-            );
+            if (user.name.trim().isEmpty || user.phone.trim().isEmpty) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (_) => ProfileSetupPage(
+                    userId: user.id,
+                    email: user.email,
+                  ),
+                ),
+                (route) => false,
+              );
+            } else {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const MainScaffoldPage()),
+                (route) => false,
+              );
+            }
           }
         } else {
           if (mounted) {
