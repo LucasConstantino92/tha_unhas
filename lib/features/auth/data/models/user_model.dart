@@ -13,7 +13,7 @@ class UserModel extends UserProfile {
     return UserModel(
       id: json['id'] as String,
       email: json['email'] as String,
-      name: (json['name'] ?? json['nome'] ?? '') as String,
+      name: json['name'] as String,
       phone: json['phone'] as String? ?? '',
       role: json['role'] as String? ?? 'user',
     );
@@ -24,7 +24,6 @@ class UserModel extends UserProfile {
       'id': id,
       'email': email,
       'name': name,
-      'nome': name,
       'phone': phone,
       'role': role,
     };

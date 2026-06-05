@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/phone_mask.dart';
+import '../../../../core/utils/app_error_formatter.dart';
 import '../../../widgets/widgets.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -136,7 +137,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     }
                                   } catch (e) {
                                     if (context.mounted) {
-                                      AppToast.error(context, message: 'Erro ao atualizar: $e');
+                                      AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao atualizar'));
                                     }
                                   } finally {
                                     if (context.mounted) {
@@ -203,7 +204,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           } catch (e) {
             if (context.mounted) {
               Navigator.of(context).pop(); // pop progress dialog
-              AppToast.error(context, message: 'Erro ao excluir conta: $e');
+              AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao excluir conta'));
             }
           }
         },

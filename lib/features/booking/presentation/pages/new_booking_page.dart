@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/app_error_formatter.dart';
 import '../../../widgets/widgets.dart';
 import '../../../services/presentation/providers/services_provider.dart';
 import '../../../services/domain/entities/service_entity.dart';
@@ -170,7 +171,7 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (error, _) => Center(
                   child: AppText.bodyMedium(
-                    'Erro ao carregar serviços: $error',
+                    AppErrorFormatter.format(error, prefix: 'Erro ao carregar serviços'),
                     color: Colors.red,
                   ),
                 ),
@@ -385,7 +386,7 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
                           if (context.mounted) {
                             AppToast.error(
                               context,
-                              message: 'Erro ao criar agendamento: $e',
+                              message: AppErrorFormatter.format(e, prefix: 'Erro ao criar agendamento'),
                             );
                           }
                         } finally {

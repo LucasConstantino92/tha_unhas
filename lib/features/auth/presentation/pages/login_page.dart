@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/extensions/color_extensions.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/app_error_formatter.dart';
 import '../../../widgets/widgets.dart';
 import '../providers/auth_provider.dart';
 
@@ -52,7 +53,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         }
       } catch (e) {
         if (mounted) {
-          AppToast.error(context, message: 'Erro ao entrar: $e');
+          AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao entrar'));
         }
       } finally {
         if (mounted) {

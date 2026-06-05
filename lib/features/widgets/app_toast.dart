@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/app_error_formatter.dart';
 
 enum AppToastType {
   success,
@@ -35,7 +36,8 @@ class AppToast {
   }
 
   static void error(BuildContext context, {required String message, Duration duration = const Duration(seconds: 3)}) {
-    show(context, message: message, type: AppToastType.error, duration: duration);
+    final sanitized = AppErrorFormatter.sanitizeMessageString(message);
+    show(context, message: sanitized, type: AppToastType.error, duration: duration);
   }
 
   static void info(BuildContext context, {required String message, Duration duration = const Duration(seconds: 3)}) {

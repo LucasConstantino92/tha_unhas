@@ -72,17 +72,20 @@ class _AnimatedBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final itemWidth = size.width / items.length;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     // Set native Android navigation bar color and icon brightness to match bottom nav
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        systemNavigationBarColor: Colors.white,
-        systemNavigationBarIconBrightness: Brightness.dark,
+      SystemUiOverlayStyle(
+        systemNavigationBarColor: theme.scaffoldBackgroundColor,
+        systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarDividerColor: Colors.transparent,
       ),
     );
 
     return Container(
-      color: Colors.white,
+      color: theme.scaffoldBackgroundColor,
       child: SafeArea(
         top: false,
         left: false,
@@ -93,7 +96,7 @@ class _AnimatedBottomNav extends StatelessWidget {
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              // White background of the bar
+              // Background of the bar matching the scaffold background color
               Positioned(
                 left: 0,
                 right: 0,
@@ -101,10 +104,12 @@ class _AnimatedBottomNav extends StatelessWidget {
                 height: 75, // 70 + 5px
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: theme.scaffoldBackgroundColor,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
+                        color: isDark 
+                            ? Colors.black.withValues(alpha: 0.3)
+                            : Colors.black.withValues(alpha: 0.05),
                         blurRadius: 20,
                         offset: const Offset(0, -5),
                       ),
@@ -126,7 +131,7 @@ class _AnimatedBottomNav extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AppTheme.primaryAccentColor,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 4),
+                      border: Border.all(color: theme.scaffoldBackgroundColor, width: 4),
                       boxShadow: [
                         BoxShadow(
                           color: AppTheme.primaryAccentColor.withValues(alpha: 0.4),

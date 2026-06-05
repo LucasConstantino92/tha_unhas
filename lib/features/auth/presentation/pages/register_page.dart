@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/app_error_formatter.dart';
 import '../../../widgets/widgets.dart';
 import '../providers/auth_provider.dart';
 import 'profile_setup_page.dart';
@@ -56,7 +57,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         }
       } catch (e) {
         if (mounted) {
-          AppToast.error(context, message: 'Erro ao cadastrar: $e');
+          AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao cadastrar'));
         }
       } finally {
         if (mounted) {

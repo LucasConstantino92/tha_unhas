@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart' show isSameDay;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/appointment_status.dart';
+import '../../../../core/utils/app_error_formatter.dart';
 import '../../../widgets/widgets.dart';
 import '../providers/booking_provider.dart';
 import '../../domain/entities/appointment_entity.dart';
@@ -215,7 +216,7 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, _) => Center(
                 child: AppText.bodyMedium(
-                  'Erro ao carregar agendamentos: $err',
+                  AppErrorFormatter.format(err, prefix: 'Erro ao carregar agendamentos'),
                   color: Colors.red,
                 ),
               ),
@@ -256,7 +257,7 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
           } catch (e) {
             if (context.mounted) {
               Navigator.pop(context); // Fecha o loading
-              AppToast.error(context, message: 'Erro ao cancelar: $e');
+              AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao cancelar'));
             }
           }
         },

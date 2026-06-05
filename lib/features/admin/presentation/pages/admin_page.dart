@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/app_error_formatter.dart';
 import '../../../widgets/widgets.dart';
 import '../../../services/presentation/providers/services_provider.dart';
 import '../../../services/domain/entities/service_entity.dart';
@@ -165,7 +166,7 @@ class _AdminPageState extends ConsumerState<AdminPage> with SingleTickerProvider
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(
-        child: AppText.bodyMedium('Erro ao carregar métricas: $error', color: Colors.red),
+        child: AppText.bodyMedium(AppErrorFormatter.format(error, prefix: 'Erro ao carregar métricas'), color: Colors.red),
       ),
     );
   }
@@ -233,7 +234,7 @@ class _AdminPageState extends ConsumerState<AdminPage> with SingleTickerProvider
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(
-          child: AppText.bodyMedium('Erro ao carregar serviços: $error', color: Colors.red),
+          child: AppText.bodyMedium(AppErrorFormatter.format(error, prefix: 'Erro ao carregar serviços'), color: Colors.red),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -349,7 +350,7 @@ class _AdminPageState extends ConsumerState<AdminPage> with SingleTickerProvider
                             }
                             if (context.mounted) Navigator.pop(context); // Fecha o formulário
                           } catch (e) {
-                            if (context.mounted) AppToast.error(context, message: 'Erro ao salvar serviço: $e');
+                            if (context.mounted) AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao salvar serviço'));
                           } finally {
                             if (context.mounted) {
                               setDialogState(() => isSaving = false);
@@ -394,7 +395,7 @@ class _AdminPageState extends ConsumerState<AdminPage> with SingleTickerProvider
             await ref.read(servicesListProvider.notifier).deleteService(service.id);
             if (mounted) AppToast.success(context, message: 'Serviço excluído!');
           } catch (e) {
-            if (mounted) AppToast.error(context, message: 'Erro ao excluir: $e');
+            if (mounted) AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao excluir'));
           } finally {
             if (loaderCtx != null && loaderCtx!.mounted) {
               Navigator.pop(loaderCtx!); // Fecha loading
@@ -572,7 +573,7 @@ class _AdminPageState extends ConsumerState<AdminPage> with SingleTickerProvider
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(
-          child: AppText.bodyMedium('Erro ao carregar agenda: $error', color: Colors.red),
+          child: AppText.bodyMedium(AppErrorFormatter.format(error, prefix: 'Erro ao carregar agenda'), color: Colors.red),
         ),
       ),
     );
@@ -602,7 +603,7 @@ class _AdminPageState extends ConsumerState<AdminPage> with SingleTickerProvider
       
       if (mounted) AppToast.success(context, message: 'Status atualizado com sucesso!');
     } catch (e) {
-      if (mounted) AppToast.error(context, message: 'Erro ao atualizar status: $e');
+      if (mounted) AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao atualizar status'));
     } finally {
       if (loaderCtx != null && loaderCtx!.mounted) {
         Navigator.pop(loaderCtx!); // Fecha loading
@@ -659,7 +660,7 @@ class _AdminPageState extends ConsumerState<AdminPage> with SingleTickerProvider
 
       if (mounted) AppToast.success(context, message: 'Agendamento de teste criado com sucesso!');
     } catch (e) {
-      if (mounted) AppToast.error(context, message: 'Erro ao criar agendamento de teste: $e');
+      if (mounted) AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao criar agendamento de teste'));
     } finally {
       if (mounted) Navigator.pop(context); // Fecha loading
     }
@@ -730,7 +731,7 @@ class _AdminPageState extends ConsumerState<AdminPage> with SingleTickerProvider
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(
-          child: AppText.bodyMedium('Erro ao carregar bloqueios: $error', color: Colors.red),
+          child: AppText.bodyMedium(AppErrorFormatter.format(error, prefix: 'Erro ao carregar bloqueios'), color: Colors.red),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -950,7 +951,7 @@ class _AdminPageState extends ConsumerState<AdminPage> with SingleTickerProvider
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              AppToast.error(context, message: 'Erro ao adicionar bloqueio: $e');
+                              AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao adicionar bloqueio'));
                             }
                           } finally {
                             if (context.mounted) {
@@ -982,7 +983,7 @@ class _AdminPageState extends ConsumerState<AdminPage> with SingleTickerProvider
             await ref.read(workSchedulesListProvider.notifier).deleteBlock(id);
             if (mounted) AppToast.success(context, message: 'Bloqueio removido com sucesso!');
           } catch (e) {
-            if (mounted) AppToast.error(context, message: 'Erro ao remover: $e');
+            if (mounted) AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao remover'));
           }
         },
       ),

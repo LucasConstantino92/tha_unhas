@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/phone_mask.dart';
+import '../../../../core/utils/app_error_formatter.dart';
 import '../../../widgets/widgets.dart';
 import '../../domain/entities/user_entity.dart';
 import '../providers/auth_provider.dart';
@@ -58,7 +59,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
         }
       } catch (e) {
         if (mounted) {
-          AppToast.error(context, message: 'Erro ao salvar perfil: $e');
+          AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao salvar perfil'));
         }
       } finally {
         if (mounted) {
