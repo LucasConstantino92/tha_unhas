@@ -10,6 +10,7 @@ import '../../../services/domain/entities/service_entity.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/booking_provider.dart';
 import '../../domain/entities/appointment_entity.dart';
+import '../../../admin/presentation/providers/nail_colors_provider.dart';
 
 class NewBookingPage extends ConsumerStatefulWidget {
   const NewBookingPage({super.key});
@@ -23,6 +24,7 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
   DateTime _selectedDay = DateTime.now().add(const Duration(days: 1)); // Amanhã por padrão
   DateTime _focusedDay = DateTime.now().add(const Duration(days: 1));
   String? _selectedTime;
+  String? _selectedColorId;
   bool _isLoading = false;
 
   List<String> _availableSlots = [];
@@ -276,6 +278,86 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
                   }).toList(),
                 ),
 
+              const SizedBox(height: 32),
+
+              // Passo 4: Preferência de Cor
+              const AppText.titleMedium(
+                '4. Preferência de Cor (Opcional)',
+                fontWeight: FontWeight.bold,
+              ),
+              const SizedBox(height: 8),
+              const AppText.bodySmall(
+                'Selecione uma cor para a manicure. Você pode mudar de ideia na hora ou deixar em branco se não souber.',
+                color: Colors.grey,
+              ),
+              const SizedBox(height: 16),
+              ref.watch(nailColorsListProvider).when(
+                data: (colors) {
+                  final availableColors = colors.where((c) => c.isAvailable).toList();
+                  if (availableColors.isEmpty) {
+                    return const AppText.bodyMedium(
+                      'Nenhuma cor cadastrada no momento.',
+                      color: Colors.grey,
+                    );
+                  }
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        // Opção: Não sei / Nenhuma
+                        GestureDetector(
+                          onTap: () => setState(() => _selectedColorId = null),
+                          child: Container(
+                            margin: const EdgeInsets.only(right: 12),
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: _selectedColorId == null ? AppTheme.primaryAccentColor : Colors.transparent,
+                                width: 3,
+                              ),
+                            ),
+                            child: const Icon(Icons.close, color: Colors.grey),
+                          ),
+                        ),
+                        ...availableColors.map((color) {
+                          final hexInt = int.tryParse(color.hexCode.replaceFirst('#', '0xff')) ?? 0xFFCCCCCC;
+                          final isSelected = _selectedColorId == color.id;
+                          return GestureDetector(
+                            onTap: () => setState(() => _selectedColorId = color.id),
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 12),
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: Color(hexInt),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isSelected ? AppTheme.primaryAccentColor : Colors.transparent,
+                                  width: 3,
+                                ),
+                                boxShadow: [
+                                  if (isSelected)
+                                    BoxShadow(
+                                      color: AppTheme.primaryAccentColor.withValues(alpha: 0.3),
+                                      blurRadius: 8,
+                                      spreadRadius: 2,
+                                    )
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  );
+                },
+                loading: () => const CircularProgressIndicator(),
+                error: (_, __) => const SizedBox(),
+              ),
+
               const SizedBox(height: 40),
 
               // Resumo e Confirmação
@@ -363,6 +445,7 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
                               endTime: currentEndTime,
                               status: 'pending',
                               paidPrice: service.price,
+                              colorId: _selectedColorId,
                               createdAt: DateTime.now(),
                               updatedAt: DateTime.now(),
                             );

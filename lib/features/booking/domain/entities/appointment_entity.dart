@@ -11,6 +11,8 @@ class AppointmentEntity {
   final String? clientName;
   final String? clientPhone;
   final String? serviceName;
+  final String? colorId;
+  final String? colorHex;
 
   const AppointmentEntity({
     required this.id,
@@ -25,5 +27,7 @@ class AppointmentEntity {
     this.clientName,
     this.clientPhone,
     this.serviceName,
+    this.colorId,
+    this.colorHex,
   });
 }

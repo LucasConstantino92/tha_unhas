@@ -9,6 +9,7 @@ import '../../../../core/utils/app_error_formatter.dart';
 import '../../../widgets/widgets.dart';
 import '../providers/booking_provider.dart';
 import '../../domain/entities/appointment_entity.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 class BookingsPage extends ConsumerStatefulWidget {
   const BookingsPage({super.key});
@@ -125,7 +126,11 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
                   itemCount: filteredBookings.length,
                   itemBuilder: (context, index) {
                     final booking = filteredBookings[index];
-                    final serviceName = booking.serviceName ?? 'Serviço';
+                    String serviceName = booking.serviceName ?? 'Serviço';
+                    final currentUser = ref.read(authProvider);
+                    if (booking.userId != currentUser?.id && booking.clientName != null) {
+                      serviceName += ' - Cliente: ${booking.clientName}';
+                    }
                     final dateStr = DateFormat('dd/MM/yyyy').format(booking.startTime.toLocal());
                     final startStr = DateFormat('HH:mm').format(booking.startTime.toLocal());
                     final endStr = DateFormat('HH:mm').format(booking.endTime.toLocal());

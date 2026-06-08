@@ -6,7 +6,8 @@ enum SBTables {
   services('services'),
   appointments('appointments'),
   adminStats('admin_stats'),
-  workSchedules('work_schedules');
+  workSchedules('work_schedules'),
+  nailColors('nail_colors');
 
   const SBTables(this.tableName);
   final String tableName;

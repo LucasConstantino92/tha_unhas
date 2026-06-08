@@ -14,11 +14,14 @@ class AppointmentModel extends AppointmentEntity {
     super.clientName,
     super.clientPhone,
     super.serviceName,
+    super.colorId,
+    super.colorHex,
   });
 
   factory AppointmentModel.fromJson(Map<String, dynamic> json) {
     final userProfiles = json['user_profiles'] as Map<String, dynamic>?;
     final services = json['services'] as Map<String, dynamic>?;
+    final nailColors = json['nail_colors'] as Map<String, dynamic>?;
 
     return AppointmentModel(
       id: json['id'] as String,
@@ -33,6 +36,8 @@ class AppointmentModel extends AppointmentEntity {
       clientName: userProfiles != null ? (userProfiles['nome'] ?? userProfiles['name']) as String? : null,
       clientPhone: userProfiles != null ? userProfiles['phone'] as String? : null,
       serviceName: services != null ? services['name'] as String? : null,
+      colorId: json['color_id'] as String?,
+      colorHex: nailColors != null ? nailColors['hex_code'] as String? : null,
     );
   }
 
@@ -47,6 +52,7 @@ class AppointmentModel extends AppointmentEntity {
       'paid_price': paidPrice,
       'created_at': createdAt.toUtc().toIso8601String(),
       'updated_at': updatedAt.toUtc().toIso8601String(),
+      if (colorId != null) 'color_id': colorId,
     };
   }
 }

@@ -75,7 +75,10 @@ class HomePage extends ConsumerWidget {
                     bookings.length > 3 ? 3 : bookings.length,
                     (index) {
                       final booking = bookings[index];
-                      final serviceName = booking.serviceName ?? 'Serviço';
+                      String serviceName = booking.serviceName ?? 'Serviço';
+                      if (booking.userId != user?.id && booking.clientName != null) {
+                        serviceName += ' (${booking.clientName})';
+                      }
                       final formattedDate = DateFormat('dd/MM/yyyy - HH:mm').format(booking.startTime.toLocal());
                       
                       // Definir cor/label do status

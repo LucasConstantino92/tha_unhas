@@ -212,6 +212,45 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AppDialog(
+        title: 'Sair da Conta',
+        message: 'Deseja realmente sair da sua conta?',
+        confirmLabel: 'Sim, Sair',
+        cancelLabel: 'Voltar',
+        isDestructive: false,
+        onConfirm: () async {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Dialog(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              child: AppLoading(),
+            ),
+          );
+
+          try {
+            await ref.read(authProvider.notifier).logout();
+            if (context.mounted) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+                (route) => false,
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              Navigator.of(context).pop(); // pop progress dialog
+              AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao sair da conta'));
+            }
+          }
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = ref.sb;
@@ -312,6 +351,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       backgroundColor: Colors.red, // border color in AppButton.outlined
                       icon: Icons.delete_outline,
                       onPressed: () => _confirmDeleteAccount(context, user, bookings),
+                    ),
+                    const SizedBox(height: 12),
+                    AppButton.filled(
+                      text: 'Sair da Conta',
+                      icon: Icons.logout_outlined,
+                      backgroundColor: Colors.grey.shade800,
+                      onPressed: () => _confirmLogout(context),
                     ),
                   ],
                 ),

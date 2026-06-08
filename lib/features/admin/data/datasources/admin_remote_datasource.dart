@@ -34,6 +34,7 @@ class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
           .lt('start_time', endOfYear);
 
       double monthlyRevenue = 0.0;
+      double potentialMonthlyRevenue = 0.0;
       double yearlyRevenue = 0.0;
       int totalBookingsCount = 0;
 
@@ -43,11 +44,19 @@ class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
         final startTimeStr = row['start_time'] as String;
         final startTime = DateTime.parse(startTimeStr);
 
-        // Somar receitas de agendamentos confirmados (ou 'completed' caso exista)
-        if (status == 'confirmed' || status == 'completed') {
+        // Somar receitas de agendamentos concluídos
+        if (status == 'completed') {
           yearlyRevenue += price;
           if (startTime.month == month) {
             monthlyRevenue += price;
+          }
+        }
+        
+        // Receita potencial (confirmados ou em andamento)
+        if (status == 'confirmed' || status == 'in_progress') {
+          // Opcional: adicionar yearly potential se precisar, mas aqui pede só do mês ou total
+          if (startTime.month == month) {
+            potentialMonthlyRevenue += price;
           }
         }
 
@@ -60,6 +69,7 @@ class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
       AppLogger.success('Estatísticas agregadas com sucesso para $month/$year', 'AdminRemoteDatasource');
       return AdminStatsModel(
         monthlyRevenue: monthlyRevenue,
+        potentialMonthlyRevenue: potentialMonthlyRevenue,
         yearlyRevenue: yearlyRevenue,
         totalBookingsCount: totalBookingsCount,
       );
@@ -67,6 +77,7 @@ class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
       AppLogger.error('Erro ao buscar estatísticas do Supabase', e, stack, 'AdminRemoteDatasource');
       return const AdminStatsModel(
         monthlyRevenue: 0.0,
+        potentialMonthlyRevenue: 0.0,
         yearlyRevenue: 0.0,
         totalBookingsCount: 0,
       );
