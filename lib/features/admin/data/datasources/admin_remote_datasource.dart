@@ -17,13 +17,16 @@ class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
   final SupabaseClient _supabaseClient;
 
   AdminRemoteDatasourceImpl({SupabaseClient? supabaseClient})
-      : _supabaseClient = supabaseClient ?? Supabase.instance.client;
+    : _supabaseClient = supabaseClient ?? Supabase.instance.client;
 
   @override
   Future<AdminStatsModel> getStats(int year, int month) async {
     try {
-      AppLogger.info('Buscando estatísticas do Supabase para $month/$year', 'AdminRemoteDatasource');
-      
+      AppLogger.info(
+        'Buscando estatísticas do Supabase para $month/$year',
+        'AdminRemoteDatasource',
+      );
+
       final startOfYear = DateTime(year, 1, 1).toUtc().toIso8601String();
       final endOfYear = DateTime(year + 1, 1, 1).toUtc().toIso8601String();
 
@@ -51,7 +54,7 @@ class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
             monthlyRevenue += price;
           }
         }
-        
+
         // Receita potencial (confirmados ou em andamento)
         if (status == 'confirmed' || status == 'in_progress') {
           // Opcional: adicionar yearly potential se precisar, mas aqui pede só do mês ou total
@@ -61,12 +64,17 @@ class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
         }
 
         // Contador total de agendamentos no mês selecionado (ignorar cancelados e testes no_show)
-        if (startTime.month == month && status != 'cancelled' && status != 'no_show') {
+        if (startTime.month == month &&
+            status != 'cancelled' &&
+            status != 'no_show') {
           totalBookingsCount++;
         }
       }
 
-      AppLogger.success('Estatísticas agregadas com sucesso para $month/$year', 'AdminRemoteDatasource');
+      AppLogger.success(
+        'Estatísticas agregadas com sucesso para $month/$year',
+        'AdminRemoteDatasource',
+      );
       return AdminStatsModel(
         monthlyRevenue: monthlyRevenue,
         potentialMonthlyRevenue: potentialMonthlyRevenue,
@@ -74,7 +82,12 @@ class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
         totalBookingsCount: totalBookingsCount,
       );
     } catch (e, stack) {
-      AppLogger.error('Erro ao buscar estatísticas do Supabase', e, stack, 'AdminRemoteDatasource');
+      AppLogger.error(
+        'Erro ao buscar estatísticas do Supabase',
+        e,
+        stack,
+        'AdminRemoteDatasource',
+      );
       return const AdminStatsModel(
         monthlyRevenue: 0.0,
         potentialMonthlyRevenue: 0.0,
@@ -87,22 +100,33 @@ class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
   @override
   Future<void> sendNotificationToAllUsers(String title, String body) async {
     // Disparo de notificação via Supabase Edge Function ou similar
-    AppLogger.info('Tentando disparar notificações em massa: $title', 'AdminRemoteDatasource');
+    AppLogger.info(
+      'Tentando disparar notificações em massa: $title',
+      'AdminRemoteDatasource',
+    );
   }
 
   @override
   Future<void> updateBookingStatus(String bookingId, String status) async {
     try {
-      AppLogger.info('Atualizando status do agendamento ID: $bookingId para $status no Supabase', 'AdminRemoteDatasource');
-      final helper = SBTables.appointments.helper(_supabaseClient);
-      
-      await helper.update(
-        data: {'status': status},
-        where: {'id': bookingId},
+      AppLogger.info(
+        'Atualizando status do agendamento ID: $bookingId para $status no Supabase',
+        'AdminRemoteDatasource',
       );
-      AppLogger.success('Status do agendamento ID: $bookingId atualizado para $status', 'AdminRemoteDatasource');
+      final helper = SBTables.appointments.helper(_supabaseClient);
+
+      await helper.update(data: {'status': status}, where: {'id': bookingId});
+      AppLogger.success(
+        'Status do agendamento ID: $bookingId atualizado para $status',
+        'AdminRemoteDatasource',
+      );
     } catch (e, stack) {
-      AppLogger.error('Erro ao atualizar status do agendamento ID: $bookingId', e, stack, 'AdminRemoteDatasource');
+      AppLogger.error(
+        'Erro ao atualizar status do agendamento ID: $bookingId',
+        e,
+        stack,
+        'AdminRemoteDatasource',
+      );
       rethrow;
     }
   }
@@ -110,19 +134,32 @@ class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
   @override
   Future<List<WorkScheduleModel>> getWorkSchedules() async {
     try {
-      AppLogger.info('Buscando bloqueios de agenda do Supabase', 'AdminRemoteDatasource');
+      AppLogger.info(
+        'Buscando bloqueios de agenda do Supabase',
+        'AdminRemoteDatasource',
+      );
       final response = await _supabaseClient
           .from('work_schedules')
           .select()
           .order('start_time', ascending: true);
-      
+
       final list = (response as List<dynamic>)
-          .map((json) => WorkScheduleModel.fromJson(json as Map<String, dynamic>))
+          .map(
+            (json) => WorkScheduleModel.fromJson(json as Map<String, dynamic>),
+          )
           .toList();
-      AppLogger.success('Recuperados ${list.length} bloqueios de agenda', 'AdminRemoteDatasource');
+      AppLogger.success(
+        'Recuperados ${list.length} bloqueios de agenda',
+        'AdminRemoteDatasource',
+      );
       return list;
     } catch (e, stack) {
-      AppLogger.error('Erro ao buscar bloqueios de agenda', e, stack, 'AdminRemoteDatasource');
+      AppLogger.error(
+        'Erro ao buscar bloqueios de agenda',
+        e,
+        stack,
+        'AdminRemoteDatasource',
+      );
       rethrow;
     }
   }
@@ -130,13 +167,24 @@ class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
   @override
   Future<void> addWorkSchedule(WorkScheduleModel model) async {
     try {
-      AppLogger.info('Adicionando bloqueio de agenda no Supabase', 'AdminRemoteDatasource');
+      AppLogger.info(
+        'Adicionando bloqueio de agenda no Supabase',
+        'AdminRemoteDatasource',
+      );
       final helper = SBTables.workSchedules.helper(_supabaseClient);
       final data = model.toJson();
       await helper.insert(data);
-      AppLogger.success('Bloqueio de agenda adicionado com sucesso', 'AdminRemoteDatasource');
+      AppLogger.success(
+        'Bloqueio de agenda adicionado com sucesso',
+        'AdminRemoteDatasource',
+      );
     } catch (e, stack) {
-      AppLogger.error('Erro ao adicionar bloqueio de agenda', e, stack, 'AdminRemoteDatasource');
+      AppLogger.error(
+        'Erro ao adicionar bloqueio de agenda',
+        e,
+        stack,
+        'AdminRemoteDatasource',
+      );
       rethrow;
     }
   }
@@ -144,12 +192,23 @@ class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
   @override
   Future<void> deleteWorkSchedule(String id) async {
     try {
-      AppLogger.info('Removendo bloqueio de agenda ID: $id no Supabase', 'AdminRemoteDatasource');
+      AppLogger.info(
+        'Removendo bloqueio de agenda ID: $id no Supabase',
+        'AdminRemoteDatasource',
+      );
       final helper = SBTables.workSchedules.helper(_supabaseClient);
       await helper.delete({'id': id});
-      AppLogger.success('Bloqueio de agenda ID: $id removido com sucesso', 'AdminRemoteDatasource');
+      AppLogger.success(
+        'Bloqueio de agenda ID: $id removido com sucesso',
+        'AdminRemoteDatasource',
+      );
     } catch (e, stack) {
-      AppLogger.error('Erro ao remover bloqueio de agenda ID: $id', e, stack, 'AdminRemoteDatasource');
+      AppLogger.error(
+        'Erro ao remover bloqueio de agenda ID: $id',
+        e,
+        stack,
+        'AdminRemoteDatasource',
+      );
       rethrow;
     }
   }

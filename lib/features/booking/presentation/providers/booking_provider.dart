@@ -10,7 +10,9 @@ import '../../domain/repositories/booking_repository.dart';
 part 'booking_provider.g.dart';
 
 @riverpod
-BookingRemoteDatasource bookingRemoteDatasource(BookingRemoteDatasourceRef ref) {
+BookingRemoteDatasource bookingRemoteDatasource(
+  BookingRemoteDatasourceRef ref,
+) {
   return BookingRemoteDatasourceImpl();
 }
 
@@ -51,9 +53,13 @@ class BookingsList extends _$BookingsList {
   }
 
   Future<void> updateBookingStatus(String bookingId, String status) async {
-    state = const AsyncLoading<List<AppointmentEntity>>().copyWithPrevious(state);
+    state = const AsyncLoading<List<AppointmentEntity>>().copyWithPrevious(
+      state,
+    );
     state = await AsyncValue.guard(() async {
-      await ref.read(adminRepositoryProvider).updateBookingStatus(bookingId, status);
+      await ref
+          .read(adminRepositoryProvider)
+          .updateBookingStatus(bookingId, status);
       final user = ref.read(authProvider);
       if (user == null) return [];
       return ref.read(bookingRepositoryProvider).getBookings(user.id);

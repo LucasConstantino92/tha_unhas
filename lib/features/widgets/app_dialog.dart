@@ -60,18 +60,13 @@ class AppDialog extends StatelessWidget {
 
     return Dialog(
       backgroundColor: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (icon != null) ...[
-              icon!,
-              const SizedBox(height: 16),
-            ],
+            if (icon != null) ...[icon!, const SizedBox(height: 16)],
             AppText.titleMedium(
               title,
               textAlign: TextAlign.center,
@@ -103,7 +98,9 @@ class AppDialog extends StatelessWidget {
                   child: AppButton.filled(
                     text: confirmLabel,
                     height: 48,
-                    backgroundColor: isDestructive ? const Color(0xFFC0392B) : theme.colorScheme.primary,
+                    backgroundColor: isDestructive
+                        ? const Color(0xFFC0392B)
+                        : theme.colorScheme.primary,
                     onPressed: () {
                       Navigator.of(context).pop();
                       onConfirm();
@@ -111,7 +108,7 @@ class AppDialog extends StatelessWidget {
                   ),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),

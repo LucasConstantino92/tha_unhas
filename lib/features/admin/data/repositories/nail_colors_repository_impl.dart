@@ -15,7 +15,10 @@ class NailColorsRepositoryImpl implements NailColorsRepository {
   }
 
   @override
-  Future<NailColorEntity> addNailColor(NailColorEntity entity, {File? imageFile}) {
+  Future<NailColorEntity> addNailColor(
+    NailColorEntity entity, {
+    File? imageFile,
+  }) {
     final model = NailColorModel(
       id: entity.id,
       name: entity.name,

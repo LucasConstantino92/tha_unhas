@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Tha Unhas',
+      title: 'ThaUnhas',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
@@ -44,7 +44,9 @@ class MyApp extends StatelessWidget {
           maxScaleFactor: 1.25,
         );
 
-        final double constrainedWidth = mediaQueryData.size.width > 800 ? 800 : mediaQueryData.size.width;
+        final double constrainedWidth = mediaQueryData.size.width > 800
+            ? 800
+            : mediaQueryData.size.width;
         final newSize = Size(constrainedWidth, mediaQueryData.size.height);
 
         return MediaQuery(
@@ -55,8 +57,8 @@ class MyApp extends StatelessWidget {
           child: Container(
             color: mediaQueryData.size.width > 800
                 ? (Theme.of(context).brightness == Brightness.dark
-                    ? const Color(0xFF1C1A16)
-                    : const Color(0xFFEFEBE0))
+                      ? const Color(0xFF1C1A16)
+                      : const Color(0xFFEFEBE0))
                 : null,
             child: Center(
               child: Container(

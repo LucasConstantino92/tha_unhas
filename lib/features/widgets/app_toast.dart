@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/utils/app_error_formatter.dart';
 
-enum AppToastType {
-  success,
-  error,
-  info,
-}
+enum AppToastType { success, error, info }
 
 class AppToast {
   static void show(
@@ -31,17 +27,44 @@ class AppToast {
     overlayState.insert(overlayEntry);
   }
 
-  static void success(BuildContext context, {required String message, Duration duration = const Duration(seconds: 3)}) {
-    show(context, message: message, type: AppToastType.success, duration: duration);
+  static void success(
+    BuildContext context, {
+    required String message,
+    Duration duration = const Duration(seconds: 3),
+  }) {
+    show(
+      context,
+      message: message,
+      type: AppToastType.success,
+      duration: duration,
+    );
   }
 
-  static void error(BuildContext context, {required String message, Duration duration = const Duration(seconds: 3)}) {
+  static void error(
+    BuildContext context, {
+    required String message,
+    Duration duration = const Duration(seconds: 3),
+  }) {
     final sanitized = AppErrorFormatter.sanitizeMessageString(message);
-    show(context, message: sanitized, type: AppToastType.error, duration: duration);
+    show(
+      context,
+      message: sanitized,
+      type: AppToastType.error,
+      duration: duration,
+    );
   }
 
-  static void info(BuildContext context, {required String message, Duration duration = const Duration(seconds: 3)}) {
-    show(context, message: message, type: AppToastType.info, duration: duration);
+  static void info(
+    BuildContext context, {
+    required String message,
+    Duration duration = const Duration(seconds: 3),
+  }) {
+    show(
+      context,
+      message: message,
+      type: AppToastType.info,
+      duration: duration,
+    );
   }
 }
 
@@ -62,7 +85,8 @@ class _ToastWidget extends StatefulWidget {
   State<_ToastWidget> createState() => _ToastWidgetState();
 }
 
-class _ToastWidgetState extends State<_ToastWidget> with SingleTickerProviderStateMixin {
+class _ToastWidgetState extends State<_ToastWidget>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _opacityAnimation;
   late Animation<double> _slideAnimation;
@@ -80,9 +104,10 @@ class _ToastWidgetState extends State<_ToastWidget> with SingleTickerProviderSta
       curve: Curves.easeOut,
     );
 
-    _slideAnimation = Tween<double>(begin: -50.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _slideAnimation = Tween<double>(
+      begin: -50.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _controller.forward();
 
@@ -149,10 +174,7 @@ class _ToastWidgetState extends State<_ToastWidget> with SingleTickerProviderSta
           builder: (context, child) {
             return Transform.translate(
               offset: Offset(0, _slideAnimation.value),
-              child: Opacity(
-                opacity: _opacityAnimation.value,
-                child: child,
-              ),
+              child: Opacity(opacity: _opacityAnimation.value, child: child),
             );
           },
           child: Padding(
@@ -160,7 +182,10 @@ class _ToastWidgetState extends State<_ToastWidget> with SingleTickerProviderSta
             child: Material(
               color: Colors.transparent,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: bgColor,
                   borderRadius: BorderRadius.circular(16),

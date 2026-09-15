@@ -40,8 +40,14 @@ class Auth extends _$Auth {
     return user;
   }
 
-  Future<UserProfile?> register(String name, String email, String password) async {
-    final user = await ref.read(authRepositoryProvider).register(name, email, password);
+  Future<UserProfile?> register(
+    String name,
+    String email,
+    String password,
+  ) async {
+    final user = await ref
+        .read(authRepositoryProvider)
+        .register(name, email, password);
     state = user;
     return user;
   }
@@ -64,7 +70,9 @@ class Auth extends _$Auth {
     final currentUser = state;
     if (currentUser == null) return;
 
-    await ref.read(authRepositoryProvider).updateProfile(currentUser.id, name, phone);
+    await ref
+        .read(authRepositoryProvider)
+        .updateProfile(currentUser.id, name, phone);
 
     state = UserProfile(
       id: currentUser.id,
@@ -81,7 +89,9 @@ class Auth extends _$Auth {
 
     // 1. Cancel appointments
     for (final appointmentId in appointmentsToCancel) {
-      await ref.read(bookingsListProvider.notifier).cancelBooking(appointmentId);
+      await ref
+          .read(bookingsListProvider.notifier)
+          .cancelBooking(appointmentId);
     }
 
     // 2. Soft delete user profile in DB
@@ -107,9 +117,12 @@ extension BuildContextSbExt on BuildContext {
 }
 
 extension UserProfileNullableExt on UserProfile? {
-  String get name => (this?.name == null || this!.name.trim().isEmpty) ? 'Cliente' : this!.name;
+  String get name => (this?.name == null || this!.name.trim().isEmpty)
+      ? 'Cliente'
+      : this!.name;
   String get phone => this?.phone ?? '';
   String get email => this?.email ?? '';
-  String get role => (this?.role == null || this!.role.trim().isEmpty) ? 'user' : this!.role;
+  String get role =>
+      (this?.role == null || this!.role.trim().isEmpty) ? 'user' : this!.role;
   bool get isAdmin => role.toLowerCase() == 'admin';
 }

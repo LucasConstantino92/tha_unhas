@@ -1,13 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum AppBadgeType {
-  primary,
-  secondary,
-  success,
-  warning,
-  error,
-  info,
-}
+enum AppBadgeType { primary, secondary, success, warning, error, info }
 
 class AppBadge extends StatelessWidget {
   final String label;
@@ -75,7 +68,7 @@ class AppBadge extends StatelessWidget {
 
   Color _getBackgroundColor(ThemeData theme) {
     if (backgroundColor != null) return backgroundColor!;
-    
+
     switch (type) {
       case AppBadgeType.primary:
         return theme.colorScheme.primary.withValues(alpha: 0.12);
@@ -128,11 +121,7 @@ class AppBadge extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (icon != null) ...[
-            Icon(
-              icon,
-              size: 14,
-              color: txtColor,
-            ),
+            Icon(icon, size: 14, color: txtColor),
             const SizedBox(width: 4),
           ],
           Flexible(

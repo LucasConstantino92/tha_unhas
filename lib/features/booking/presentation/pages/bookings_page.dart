@@ -33,8 +33,12 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
         actions: [
           IconButton(
             icon: Icon(
-              _showCalendarFilter ? Icons.calendar_today : Icons.calendar_today_outlined,
-              color: _selectedFilterDate != null ? AppTheme.primaryAccentColor : null,
+              _showCalendarFilter
+                  ? Icons.calendar_today
+                  : Icons.calendar_today_outlined,
+              color: _selectedFilterDate != null
+                  ? AppTheme.primaryAccentColor
+                  : null,
             ),
             onPressed: () {
               setState(() {
@@ -48,7 +52,10 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
         children: [
           if (_showCalendarFilter)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 8.0,
+              ),
               child: Column(
                 children: [
                   AppCalendar(
@@ -63,8 +70,18 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
                   const SizedBox(height: 8),
                   if (_selectedFilterDate != null)
                     TextButton.icon(
-                      icon: const Icon(Icons.clear, size: 16, color: Colors.grey),
-                      label: const Text('Limpar Filtro de Data', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                      icon: const Icon(
+                        Icons.clear,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
+                      label: const Text(
+                        'Limpar Filtro de Data',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       onPressed: () {
                         setState(() {
                           _selectedFilterDate = null;
@@ -122,21 +139,33 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
                 }
 
                 return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 8.0,
+                  ),
                   itemCount: filteredBookings.length,
                   itemBuilder: (context, index) {
                     final booking = filteredBookings[index];
                     String serviceName = booking.serviceName ?? 'Serviço';
                     final currentUser = ref.read(authProvider);
-                    if (booking.userId != currentUser?.id && booking.clientName != null) {
+                    if (booking.userId != currentUser?.id &&
+                        booking.clientName != null) {
                       serviceName += ' - Cliente: ${booking.clientName}';
                     }
-                    final dateStr = DateFormat('dd/MM/yyyy').format(booking.startTime.toLocal());
-                    final startStr = DateFormat('HH:mm').format(booking.startTime.toLocal());
-                    final endStr = DateFormat('HH:mm').format(booking.endTime.toLocal());
+                    final dateStr = DateFormat(
+                      'dd/MM/yyyy',
+                    ).format(booking.startTime.toLocal());
+                    final startStr = DateFormat(
+                      'HH:mm',
+                    ).format(booking.startTime.toLocal());
+                    final endStr = DateFormat(
+                      'HH:mm',
+                    ).format(booking.endTime.toLocal());
 
                     // Definir cor/label do status
-                    final statusEnum = AppointmentStatus.fromValue(booking.status);
+                    final statusEnum = AppointmentStatus.fromValue(
+                      booking.status,
+                    );
                     Widget statusBadge;
                     bool canCancel = false;
 
@@ -149,7 +178,9 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
                         statusBadge = AppBadge.error(label: statusEnum.label);
                         break;
                       case AppointmentStatus.noShow:
-                        statusBadge = AppBadge.secondary(label: statusEnum.label);
+                        statusBadge = AppBadge.secondary(
+                          label: statusEnum.label,
+                        );
                         break;
                       case AppointmentStatus.inProgress:
                         statusBadge = AppBadge.primary(label: statusEnum.label);
@@ -183,11 +214,19 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
                           const Divider(height: 24),
                           Row(
                             children: [
-                              const Icon(Icons.calendar_today, size: 16, color: AppTheme.primaryAccentColor),
+                              const Icon(
+                                Icons.calendar_today,
+                                size: 16,
+                                color: AppTheme.primaryAccentColor,
+                              ),
                               const SizedBox(width: 8),
                               AppText.bodyMedium(dateStr),
                               const SizedBox(width: 24),
-                              const Icon(Icons.access_time, size: 16, color: AppTheme.primaryAccentColor),
+                              const Icon(
+                                Icons.access_time,
+                                size: 16,
+                                color: AppTheme.primaryAccentColor,
+                              ),
                               const SizedBox(width: 8),
                               AppText.bodyMedium('$startStr - $endStr'),
                             ],
@@ -203,12 +242,20 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
                               ),
                               if (canCancel)
                                 TextButton.icon(
-                                  icon: const Icon(Icons.cancel_outlined, size: 16, color: Colors.red),
+                                  icon: const Icon(
+                                    Icons.cancel_outlined,
+                                    size: 16,
+                                    color: Colors.red,
+                                  ),
                                   label: const Text(
                                     'Cancelar',
-                                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                  onPressed: () => _confirmCancel(context, ref, booking.id),
+                                  onPressed: () =>
+                                      _confirmCancel(context, ref, booking.id),
                                 ),
                             ],
                           ),
@@ -221,7 +268,10 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, _) => Center(
                 child: AppText.bodyMedium(
-                  AppErrorFormatter.format(err, prefix: 'Erro ao carregar agendamentos'),
+                  AppErrorFormatter.format(
+                    err,
+                    prefix: 'Erro ao carregar agendamentos',
+                  ),
                   color: Colors.red,
                 ),
               ),
@@ -254,15 +304,26 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
           );
 
           try {
-            await ref.read(bookingsListProvider.notifier).cancelBooking(bookingId);
+            await ref
+                .read(bookingsListProvider.notifier)
+                .cancelBooking(bookingId);
             if (context.mounted) {
               Navigator.pop(context); // Fecha o loading
-              AppToast.success(context, message: 'Agendamento cancelado com sucesso!');
+              AppToast.success(
+                context,
+                message: 'Agendamento cancelado com sucesso!',
+              );
             }
           } catch (e) {
             if (context.mounted) {
               Navigator.pop(context); // Fecha o loading
-              AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao cancelar'));
+              AppToast.error(
+                context,
+                message: AppErrorFormatter.format(
+                  e,
+                  prefix: 'Erro ao cancelar',
+                ),
+              );
             }
           }
         },

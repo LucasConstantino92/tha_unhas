@@ -29,8 +29,10 @@ class AppCalendar extends StatelessWidget {
     final primaryColor = theme.colorScheme.primary;
     final secondaryColor = theme.colorScheme.secondary;
 
-    final baseFirstDay = firstDay ?? DateTime.now().subtract(const Duration(days: 365));
-    final baseLastDay = lastDay ?? DateTime.now().add(const Duration(days: 365));
+    final baseFirstDay =
+        firstDay ?? DateTime.now().subtract(const Duration(days: 365));
+    final baseLastDay =
+        lastDay ?? DateTime.now().add(const Duration(days: 365));
 
     return Container(
       decoration: BoxDecoration(
@@ -51,7 +53,7 @@ class AppCalendar extends StatelessWidget {
         onDaySelected: onDaySelected,
         onFormatChanged: onFormatChanged,
         enabledDayPredicate: enabledDayPredicate,
-        
+
         // Estilo do cabeçalho
         headerStyle: HeaderStyle(
           formatButtonVisible: onFormatChanged != null,
@@ -92,9 +94,13 @@ class AppCalendar extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
           defaultTextStyle: TextStyle(color: theme.colorScheme.onSurface),
-          weekendTextStyle: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+          weekendTextStyle: TextStyle(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
           outsideDaysVisible: false,
-          disabledTextStyle: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.25)),
+          disabledTextStyle: TextStyle(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
+          ),
         ),
 
         // Dias da semana

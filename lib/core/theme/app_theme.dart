@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 class AppTheme {
   // Cor de fundo do splash / principal do app
   static const Color primaryBackgroundColor = Color(0xFFF7F3E7);
-  static const Color primaryAccentColor = Color(0xFFE28C9B); // Tom suave de rosa/rose gold
+  static const Color primaryAccentColor = Color(
+    0xFFE28C9B,
+  ); // Tom suave de rosa/rose gold
   static const Color secondaryAccentColor = Color(0xFFC07380);
 
   static ThemeData get lightTheme {
@@ -38,29 +40,33 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16,
+          horizontal: 20,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: primaryAccentColor.withValues(alpha: 0.2)),
+          borderSide: BorderSide(
+            color: primaryAccentColor.withValues(alpha: 0.2),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: primaryAccentColor, width: 1.5),
         ),
-        labelStyle: TextStyle(color: const Color(0xFF2C2520).withValues(alpha: 0.6)),
+        labelStyle: TextStyle(
+          color: const Color(0xFF2C2520).withValues(alpha: 0.6),
+        ),
         floatingLabelStyle: const TextStyle(color: primaryAccentColor),
       ),
     );
@@ -98,29 +104,33 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFF25231F),
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16,
+          horizontal: 20,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: primaryAccentColor.withValues(alpha: 0.2)),
+          borderSide: BorderSide(
+            color: primaryAccentColor.withValues(alpha: 0.2),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: primaryAccentColor, width: 1.5),
         ),
-        labelStyle: TextStyle(color: const Color(0xFFF7F3E7).withValues(alpha: 0.6)),
+        labelStyle: TextStyle(
+          color: const Color(0xFFF7F3E7).withValues(alpha: 0.6),
+        ),
         floatingLabelStyle: const TextStyle(color: primaryAccentColor),
       ),
     );

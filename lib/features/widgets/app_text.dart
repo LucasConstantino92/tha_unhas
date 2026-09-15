@@ -151,31 +151,49 @@ class AppText extends StatelessWidget {
     TextStyle style;
     switch (variant) {
       case AppTextVariant.titleLarge:
-        style = textTheme.titleLarge ?? const TextStyle(fontSize: 22, fontWeight: FontWeight.bold);
+        style =
+            textTheme.titleLarge ??
+            const TextStyle(fontSize: 22, fontWeight: FontWeight.bold);
         break;
       case AppTextVariant.titleMedium:
-        style = textTheme.titleMedium ?? const TextStyle(fontSize: 18, fontWeight: FontWeight.w600);
+        style =
+            textTheme.titleMedium ??
+            const TextStyle(fontSize: 18, fontWeight: FontWeight.w600);
         break;
       case AppTextVariant.titleSmall:
-        style = textTheme.titleSmall ?? const TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+        style =
+            textTheme.titleSmall ??
+            const TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
         break;
       case AppTextVariant.bodyLarge:
-        style = textTheme.bodyLarge ?? const TextStyle(fontSize: 16, fontWeight: FontWeight.normal);
+        style =
+            textTheme.bodyLarge ??
+            const TextStyle(fontSize: 16, fontWeight: FontWeight.normal);
         break;
       case AppTextVariant.bodyMedium:
-        style = textTheme.bodyMedium ?? const TextStyle(fontSize: 14, fontWeight: FontWeight.normal);
+        style =
+            textTheme.bodyMedium ??
+            const TextStyle(fontSize: 14, fontWeight: FontWeight.normal);
         break;
       case AppTextVariant.bodySmall:
-        style = textTheme.bodySmall ?? const TextStyle(fontSize: 12, fontWeight: FontWeight.normal);
+        style =
+            textTheme.bodySmall ??
+            const TextStyle(fontSize: 12, fontWeight: FontWeight.normal);
         break;
       case AppTextVariant.labelLarge:
-        style = textTheme.labelLarge ?? const TextStyle(fontSize: 14, fontWeight: FontWeight.w500);
+        style =
+            textTheme.labelLarge ??
+            const TextStyle(fontSize: 14, fontWeight: FontWeight.w500);
         break;
       case AppTextVariant.labelMedium:
-        style = textTheme.labelMedium ?? const TextStyle(fontSize: 12, fontWeight: FontWeight.w500);
+        style =
+            textTheme.labelMedium ??
+            const TextStyle(fontSize: 12, fontWeight: FontWeight.w500);
         break;
       case AppTextVariant.labelSmall:
-        style = textTheme.labelSmall ?? const TextStyle(fontSize: 11, fontWeight: FontWeight.w500);
+        style =
+            textTheme.labelSmall ??
+            const TextStyle(fontSize: 11, fontWeight: FontWeight.w500);
         break;
     }
 

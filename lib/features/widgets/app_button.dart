@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum AppButtonVariant {
-  filled,
-  outlined,
-  text,
-}
+enum AppButtonVariant { filled, outlined, text }
 
 class AppButton extends StatelessWidget {
   final String text;
@@ -104,11 +100,7 @@ class AppButton extends StatelessWidget {
                 const SizedBox(width: 8),
               ],
               Flexible(
-                child: Text(
-                  text,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
+                child: Text(text, overflow: TextOverflow.ellipsis, maxLines: 1),
               ),
             ],
           );
@@ -117,9 +109,7 @@ class AppButton extends StatelessWidget {
       backgroundColor: backgroundColor,
       foregroundColor: textColor,
       minimumSize: Size(width ?? double.infinity, height),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     );
 
     switch (variant) {
@@ -135,7 +125,9 @@ class AppButton extends StatelessWidget {
                 }
                 return backgroundColor ?? theme.colorScheme.primary;
               }),
-              foregroundColor: WidgetStateProperty.all(textColor ?? Colors.white),
+              foregroundColor: WidgetStateProperty.all(
+                textColor ?? Colors.white,
+              ),
               elevation: WidgetStateProperty.all(0),
             ),
             child: content,

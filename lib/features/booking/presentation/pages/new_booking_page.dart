@@ -21,7 +21,9 @@ class NewBookingPage extends ConsumerStatefulWidget {
 
 class _NewBookingPageState extends ConsumerState<NewBookingPage> {
   final List<ServiceEntity> _selectedServices = [];
-  DateTime _selectedDay = DateTime.now().add(const Duration(days: 1)); // Amanhã por padrão
+  DateTime _selectedDay = DateTime.now().add(
+    const Duration(days: 1),
+  ); // Amanhã por padrão
   DateTime _focusedDay = DateTime.now().add(const Duration(days: 1));
   String? _selectedTime;
   String? _selectedColorId;
@@ -31,7 +33,10 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
   bool _isLoadingSlots = false;
 
   Future<void> _fetchAvailableSlots() async {
-    final totalDuration = _selectedServices.fold(0, (sum, service) => sum + service.durationMinutes);
+    final totalDuration = _selectedServices.fold(
+      0,
+      (sum, service) => sum + service.durationMinutes,
+    );
     if (totalDuration == 0) {
       setState(() {
         _availableSlots = [];
@@ -48,10 +53,7 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
       final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDay);
       final List<dynamic> response = await Supabase.instance.client.rpc(
         'get_available_slots',
-        params: {
-          'p_date': dateStr,
-          'p_duration_minutes': totalDuration,
-        },
+        params: {'p_date': dateStr, 'p_duration_minutes': totalDuration},
       );
 
       setState(() {
@@ -80,9 +82,7 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
     final user = ref.sb;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Novo Agendamento'),
-      ),
+      appBar: AppBar(title: const Text('Novo Agendamento')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -114,12 +114,16 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
                   }
                   return Column(
                     children: services.map((service) {
-                      final isSelected = _selectedServices.any((s) => s.id == service.id);
+                      final isSelected = _selectedServices.any(
+                        (s) => s.id == service.id,
+                      );
                       return GestureDetector(
                         onTap: () {
                           setState(() {
                             if (isSelected) {
-                              _selectedServices.removeWhere((s) => s.id == service.id);
+                              _selectedServices.removeWhere(
+                                (s) => s.id == service.id,
+                              );
                             } else {
                               _selectedServices.add(service);
                             }
@@ -130,7 +134,9 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(16),
                           backgroundColor: isSelected
-                              ? AppTheme.primaryAccentColor.withValues(alpha: 0.1)
+                              ? AppTheme.primaryAccentColor.withValues(
+                                  alpha: 0.1,
+                                )
                               : Colors.white,
                           showBorder: isSelected,
                           borderColor: AppTheme.primaryAccentColor,
@@ -173,7 +179,10 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (error, _) => Center(
                   child: AppText.bodyMedium(
-                    AppErrorFormatter.format(error, prefix: 'Erro ao carregar serviços'),
+                    AppErrorFormatter.format(
+                      error,
+                      prefix: 'Erro ao carregar serviços',
+                    ),
                     color: Colors.red,
                   ),
                 ),
@@ -191,7 +200,9 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
                 selectedDay: _selectedDay,
                 focusedDay: _focusedDay,
                 firstDay: DateTime.now(), // Não pode agendar no passado
-                lastDay: DateTime.now().add(const Duration(days: 60)), // Limite de 60 dias
+                lastDay: DateTime.now().add(
+                  const Duration(days: 60),
+                ), // Limite de 60 dias
                 onDaySelected: (selectedDay, focusedDay) {
                   setState(() {
                     _selectedDay = selectedDay;
@@ -227,7 +238,9 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
                   ),
                 )
               else if (_isLoadingSlots)
-                const Center(child: AppLoading(color: AppTheme.primaryAccentColor))
+                const Center(
+                  child: AppLoading(color: AppTheme.primaryAccentColor),
+                )
               else if (_availableSlots.isEmpty)
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -273,7 +286,10 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                     );
                   }).toList(),
                 ),
@@ -291,72 +307,90 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
                 color: Colors.grey,
               ),
               const SizedBox(height: 16),
-              ref.watch(nailColorsListProvider).when(
-                data: (colors) {
-                  final availableColors = colors.where((c) => c.isAvailable).toList();
-                  if (availableColors.isEmpty) {
-                    return const AppText.bodyMedium(
-                      'Nenhuma cor cadastrada no momento.',
-                      color: Colors.grey,
-                    );
-                  }
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        // Opção: Não sei / Nenhuma
-                        GestureDetector(
-                          onTap: () => setState(() => _selectedColorId = null),
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 12),
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: _selectedColorId == null ? AppTheme.primaryAccentColor : Colors.transparent,
-                                width: 3,
-                              ),
-                            ),
-                            child: const Icon(Icons.close, color: Colors.grey),
-                          ),
-                        ),
-                        ...availableColors.map((color) {
-                          final hexInt = int.tryParse(color.hexCode.replaceFirst('#', '0xff')) ?? 0xFFCCCCCC;
-                          final isSelected = _selectedColorId == color.id;
-                          return GestureDetector(
-                            onTap: () => setState(() => _selectedColorId = color.id),
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 12),
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: Color(hexInt),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: isSelected ? AppTheme.primaryAccentColor : Colors.transparent,
-                                  width: 3,
+              ref
+                  .watch(nailColorsListProvider)
+                  .when(
+                    data: (colors) {
+                      final availableColors = colors
+                          .where((c) => c.isAvailable)
+                          .toList();
+                      if (availableColors.isEmpty) {
+                        return const AppText.bodyMedium(
+                          'Nenhuma cor cadastrada no momento.',
+                          color: Colors.grey,
+                        );
+                      }
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            // Opção: Não sei / Nenhuma
+                            GestureDetector(
+                              onTap: () =>
+                                  setState(() => _selectedColorId = null),
+                              child: Container(
+                                margin: const EdgeInsets.only(right: 12),
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade200,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: _selectedColorId == null
+                                        ? AppTheme.primaryAccentColor
+                                        : Colors.transparent,
+                                    width: 3,
+                                  ),
                                 ),
-                                boxShadow: [
-                                  if (isSelected)
-                                    BoxShadow(
-                                      color: AppTheme.primaryAccentColor.withValues(alpha: 0.3),
-                                      blurRadius: 8,
-                                      spreadRadius: 2,
-                                    )
-                                ],
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.grey,
+                                ),
                               ),
                             ),
-                          );
-                        }),
-                      ],
-                    ),
-                  );
-                },
-                loading: () => const CircularProgressIndicator(),
-                error: (_, __) => const SizedBox(),
-              ),
+                            ...availableColors.map((color) {
+                              final hexInt =
+                                  int.tryParse(
+                                    color.hexCode.replaceFirst('#', '0xff'),
+                                  ) ??
+                                  0xFFCCCCCC;
+                              final isSelected = _selectedColorId == color.id;
+                              return GestureDetector(
+                                onTap: () =>
+                                    setState(() => _selectedColorId = color.id),
+                                child: Container(
+                                  margin: const EdgeInsets.only(right: 12),
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: Color(hexInt),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? AppTheme.primaryAccentColor
+                                          : Colors.transparent,
+                                      width: 3,
+                                    ),
+                                    boxShadow: [
+                                      if (isSelected)
+                                        BoxShadow(
+                                          color: AppTheme.primaryAccentColor
+                                              .withValues(alpha: 0.3),
+                                          blurRadius: 8,
+                                          spreadRadius: 2,
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      );
+                    },
+                    loading: () => const CircularProgressIndicator(),
+                    error: (_, __) => const SizedBox(),
+                  ),
 
               const SizedBox(height: 40),
 
@@ -410,7 +444,8 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
               AppButton.filled(
                 text: 'Confirmar Agendamento',
                 isLoading: _isLoading,
-                onPressed: (_selectedServices.isEmpty ||
+                onPressed:
+                    (_selectedServices.isEmpty ||
                         _selectedTime == null ||
                         user == null ||
                         _isLoading)
@@ -463,13 +498,18 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
                               context,
                               message: 'Agendamento solicitado com sucesso!',
                             );
-                            Navigator.of(context).pop(); // Volta para a tela anterior
+                            Navigator.of(
+                              context,
+                            ).pop(); // Volta para a tela anterior
                           }
                         } catch (e) {
                           if (context.mounted) {
                             AppToast.error(
                               context,
-                              message: AppErrorFormatter.format(e, prefix: 'Erro ao criar agendamento'),
+                              message: AppErrorFormatter.format(
+                                e,
+                                prefix: 'Erro ao criar agendamento',
+                              ),
                             );
                           }
                         } finally {

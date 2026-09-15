@@ -1403,9 +1403,16 @@ class _AdminPageState extends ConsumerState<AdminPage>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.color_lens_outlined, size: 64, color: Colors.grey),
+                  const Icon(
+                    Icons.color_lens_outlined,
+                    size: 64,
+                    color: Colors.grey,
+                  ),
                   const SizedBox(height: 16),
-                  const AppText.bodyMedium('Nenhuma cor cadastrada.', color: Colors.grey),
+                  const AppText.bodyMedium(
+                    'Nenhuma cor cadastrada.',
+                    color: Colors.grey,
+                  ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => _startAddColorFlow(),
@@ -1427,10 +1434,14 @@ class _AdminPageState extends ConsumerState<AdminPage>
             itemCount: colors.length,
             itemBuilder: (context, index) {
               final color = colors[index];
-              final hexInt = int.tryParse(color.hexCode.replaceFirst('#', '0xff')) ?? 0xFFCCCCCC;
+              final hexInt =
+                  int.tryParse(color.hexCode.replaceFirst('#', '0xff')) ??
+                  0xFFCCCCCC;
               return Card(
                 clipBehavior: Clip.antiAlias,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -1445,7 +1456,10 @@ class _AdminPageState extends ConsumerState<AdminPage>
                               child: const Center(
                                 child: Text(
                                   'Indisponível',
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
@@ -1458,7 +1472,9 @@ class _AdminPageState extends ConsumerState<AdminPage>
                       child: Column(
                         children: [
                           AppText.bodySmall(
-                            color.name?.isNotEmpty == true ? color.name! : color.hexCode,
+                            color.name?.isNotEmpty == true
+                                ? color.name!
+                                : color.hexCode,
                             fontWeight: FontWeight.bold,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -1474,7 +1490,9 @@ class _AdminPageState extends ConsumerState<AdminPage>
                                 isAvailable: val,
                                 createdAt: color.createdAt,
                               );
-                              ref.read(nailColorsListProvider.notifier).updateNailColor(updated);
+                              ref
+                                  .read(nailColorsListProvider.notifier)
+                                  .updateNailColor(updated);
                             },
                           ),
                         ],
@@ -1536,7 +1554,8 @@ class _AdminPageState extends ConsumerState<AdminPage>
           final shouldRequest = await showPermissionDialog(
             context: context,
             title: 'Permissão de Câmera',
-            message: 'Precisamos acessar sua câmera para tirar a foto do esmalte. O acesso será usado apenas para isso.',
+            message:
+                'Precisamos acessar sua câmera para tirar a foto do esmalte. O acesso será usado apenas para isso.',
             icon: Icons.camera_alt,
           );
           if (shouldRequest) {
@@ -1551,7 +1570,8 @@ class _AdminPageState extends ConsumerState<AdminPage>
           final shouldRequest = await showPermissionDialog(
             context: context,
             title: 'Permissão de Galeria',
-            message: 'Precisamos acessar sua galeria para você escolher a foto do esmalte.',
+            message:
+                'Precisamos acessar sua galeria para você escolher a foto do esmalte.',
             icon: Icons.photo_library,
           );
           if (shouldRequest) {
@@ -1565,7 +1585,10 @@ class _AdminPageState extends ConsumerState<AdminPage>
 
       if (source == ImageSource.camera && !permissionGranted) {
         if (mounted) {
-          AppToast.error(context, message: 'Permissão necessária não concedida.');
+          AppToast.error(
+            context,
+            message: 'Permissão necessária não concedida.',
+          );
         }
         return;
       }
@@ -1573,12 +1596,15 @@ class _AdminPageState extends ConsumerState<AdminPage>
 
     try {
       final picker = ImagePicker();
-      final XFile? photo = await picker.pickImage(source: source, imageQuality: 80);
-      
+      final XFile? photo = await picker.pickImage(
+        source: source,
+        imageQuality: 80,
+      );
+
       if (photo == null) return;
 
       if (!mounted) return;
-      
+
       // Show loading
       showDialog(
         context: context,
@@ -1591,24 +1617,31 @@ class _AdminPageState extends ConsumerState<AdminPage>
       );
 
       // Generate palette
-      final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
-        kIsWeb ? NetworkImage(photo.path) as ImageProvider : FileImage(File(photo.path)),
-        maximumColorCount: 10,
-      );
+      final PaletteGenerator paletteGenerator =
+          await PaletteGenerator.fromImageProvider(
+            kIsWeb
+                ? NetworkImage(photo.path) as ImageProvider
+                : FileImage(File(photo.path)),
+            maximumColorCount: 10,
+          );
 
       if (!mounted) return;
       Navigator.pop(context); // Close loading
 
       final colors = paletteGenerator.colors.toList();
       if (colors.isEmpty) {
-        AppToast.error(context, message: 'Não foi possível extrair cores da imagem.');
+        AppToast.error(
+          context,
+          message: 'Não foi possível extrair cores da imagem.',
+        );
         return;
       }
 
       // Show selection dialog
       final selectedColorInfo = await showDialog<Map<String, dynamic>>(
         context: context,
-        builder: (ctx) => _PaletteSelectionDialog(colors: colors, imagePath: photo.path),
+        builder: (ctx) =>
+            _PaletteSelectionDialog(colors: colors, imagePath: photo.path),
       );
 
       if (selectedColorInfo != null) {
@@ -1628,23 +1661,28 @@ class _AdminPageState extends ConsumerState<AdminPage>
           ),
         );
 
-        await ref.read(nailColorsListProvider.notifier).addNailColor(
-          hexCode, 
-          name, 
-          true, 
-          imageFile: kIsWeb ? null : file,
-        );
+        await ref
+            .read(nailColorsListProvider.notifier)
+            .addNailColor(hexCode, name, true, imageFile: kIsWeb ? null : file);
 
         if (mounted) {
           Navigator.pop(context); // Close loading
           AppToast.success(context, message: 'Cor salva com sucesso!');
         }
       }
-
     } catch (e) {
       if (mounted) {
-        Navigator.of(context, rootNavigator: true).pop(); // Attempt to close loading if open
-        AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao processar imagem'));
+        Navigator.of(
+          context,
+          rootNavigator: true,
+        ).pop(); // Attempt to close loading if open
+        AppToast.error(
+          context,
+          message: AppErrorFormatter.format(
+            e,
+            prefix: 'Erro ao processar imagem',
+          ),
+        );
       }
     }
   }
@@ -1654,10 +1692,14 @@ class _PaletteSelectionDialog extends StatefulWidget {
   final List<Color> colors;
   final String imagePath;
 
-  const _PaletteSelectionDialog({required this.colors, required this.imagePath});
+  const _PaletteSelectionDialog({
+    required this.colors,
+    required this.imagePath,
+  });
 
   @override
-  State<_PaletteSelectionDialog> createState() => _PaletteSelectionDialogState();
+  State<_PaletteSelectionDialog> createState() =>
+      _PaletteSelectionDialogState();
 }
 
 class _PaletteSelectionDialogState extends State<_PaletteSelectionDialog> {
@@ -1697,16 +1739,20 @@ class _PaletteSelectionDialogState extends State<_PaletteSelectionDialog> {
                       color: color,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isSelected ? AppTheme.primaryAccentColor : Colors.grey.shade300,
+                        color: isSelected
+                            ? AppTheme.primaryAccentColor
+                            : Colors.grey.shade300,
                         width: isSelected ? 4 : 1,
                       ),
                       boxShadow: [
                         if (isSelected)
                           BoxShadow(
-                            color: AppTheme.primaryAccentColor.withValues(alpha: 0.4),
+                            color: AppTheme.primaryAccentColor.withValues(
+                              alpha: 0.4,
+                            ),
                             blurRadius: 8,
                             spreadRadius: 2,
-                          )
+                          ),
                       ],
                     ),
                   ),
@@ -1730,10 +1776,13 @@ class _PaletteSelectionDialogState extends State<_PaletteSelectionDialog> {
           onPressed: _selectedColor == null
               ? null
               : () {
-                  final hex = '#${_selectedColor!.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+                  final hex =
+                      '#${_selectedColor!.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
                   Navigator.pop(context, {
                     'hex': hex,
-                    'name': _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
+                    'name': _nameController.text.trim().isEmpty
+                        ? null
+                        : _nameController.text.trim(),
                   });
                 },
           child: const Text('Salvar Cor'),

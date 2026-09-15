@@ -8,7 +8,9 @@ import '../../domain/repositories/services_repository.dart';
 part 'services_provider.g.dart';
 
 @riverpod
-ServicesRemoteDatasource servicesRemoteDatasource(ServicesRemoteDatasourceRef ref) {
+ServicesRemoteDatasource servicesRemoteDatasource(
+  ServicesRemoteDatasourceRef ref,
+) {
   return ServicesRemoteDatasourceImpl();
 }
 

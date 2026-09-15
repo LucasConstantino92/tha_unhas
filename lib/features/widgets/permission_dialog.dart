@@ -23,7 +23,11 @@ class PermissionDialog extends StatelessWidget {
         children: [
           Icon(icon, size: 48, color: AppTheme.primaryAccentColor),
           const SizedBox(height: 16),
-          AppText.titleMedium(title, fontWeight: FontWeight.bold, textAlign: TextAlign.center),
+          AppText.titleMedium(
+            title,
+            fontWeight: FontWeight.bold,
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
       content: AppText.bodyMedium(message, textAlign: TextAlign.center),
@@ -50,11 +54,8 @@ Future<bool> showPermissionDialog({
 }) async {
   final result = await showDialog<bool>(
     context: context,
-    builder: (context) => PermissionDialog(
-      title: title,
-      message: message,
-      icon: icon,
-    ),
+    builder: (context) =>
+        PermissionDialog(title: title, message: message, icon: icon),
   );
   return result ?? false;
 }

@@ -34,7 +34,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
-        final user = await ref.read(authProvider.notifier).login(
+        final user = await ref
+            .read(authProvider.notifier)
+            .login(
               _emailController.text.trim(),
               _passwordController.text.trim(),
             );
@@ -45,10 +47,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             if (user.name.trim().isEmpty || user.phone.trim().isEmpty) {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
-                  builder: (_) => ProfileSetupPage(
-                    userId: user.id,
-                    email: user.email,
-                  ),
+                  builder: (_) =>
+                      ProfileSetupPage(userId: user.id, email: user.email),
                 ),
                 (route) => false,
               );
@@ -66,7 +66,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         }
       } catch (e) {
         if (mounted) {
-          AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao entrar'));
+          AppToast.error(
+            context,
+            message: AppErrorFormatter.format(e, prefix: 'Erro ao entrar'),
+          );
         }
       } finally {
         if (mounted) {
@@ -139,12 +142,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     labelText: 'E-mail',
-                    prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.primaryAccentColor),
+                    prefixIcon: const Icon(
+                      Icons.email_outlined,
+                      color: AppTheme.primaryAccentColor,
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira seu e-mail';
                       }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                      if (!RegExp(
+                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                      ).hasMatch(value)) {
                         return 'Insira um e-mail válido';
                       }
                       return null;
@@ -156,7 +164,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     controller: _passwordController,
                     obscureText: true,
                     labelText: 'Senha',
-                    prefixIcon: const Icon(Icons.lock_outlined, color: AppTheme.primaryAccentColor),
+                    prefixIcon: const Icon(
+                      Icons.lock_outlined,
+                      color: AppTheme.primaryAccentColor,
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira sua senha';
@@ -170,11 +181,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   const SizedBox(height: 24),
                   // Botão de Login
                   _isLoading
-                      ? const Center(child: AppLoading(color: AppTheme.primaryAccentColor))
-                      : AppButton.filled(
-                          text: 'Entrar',
-                          onPressed: _submit,
-                        ),
+                      ? const Center(
+                          child: AppLoading(color: AppTheme.primaryAccentColor),
+                        )
+                      : AppButton.filled(text: 'Entrar', onPressed: _submit),
                   const SizedBox(height: 16),
                   // Botão de Cadastro
                   Wrap(
@@ -191,7 +201,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         height: 40,
                         onPressed: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const RegisterPage()),
+                            MaterialPageRoute(
+                              builder: (_) => const RegisterPage(),
+                            ),
                           );
                         },
                       ),

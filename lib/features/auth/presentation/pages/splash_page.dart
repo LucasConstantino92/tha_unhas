@@ -15,7 +15,8 @@ class SplashPage extends ConsumerStatefulWidget {
   ConsumerState<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends ConsumerState<SplashPage> with SingleTickerProviderStateMixin {
+class _SplashPageState extends ConsumerState<SplashPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
 
@@ -46,10 +47,8 @@ class _SplashPageState extends ConsumerState<SplashPage> with SingleTickerProvid
       if (user.name.trim().isEmpty || user.phone.trim().isEmpty) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) => ProfileSetupPage(
-              userId: user.id,
-              email: user.email,
-            ),
+            builder: (_) =>
+                ProfileSetupPage(userId: user.id, email: user.email),
           ),
         );
       } else {
@@ -58,9 +57,9 @@ class _SplashPageState extends ConsumerState<SplashPage> with SingleTickerProvid
         );
       }
     } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginPage()));
     }
   }
 

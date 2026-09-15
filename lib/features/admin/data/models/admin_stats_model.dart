@@ -11,7 +11,8 @@ class AdminStatsModel extends AdminStatsEntity {
   factory AdminStatsModel.fromJson(Map<String, dynamic> json) {
     return AdminStatsModel(
       monthlyRevenue: (json['monthly_revenue'] as num).toDouble(),
-      potentialMonthlyRevenue: (json['potential_monthly_revenue'] as num?)?.toDouble() ?? 0.0,
+      potentialMonthlyRevenue:
+          (json['potential_monthly_revenue'] as num?)?.toDouble() ?? 0.0,
       yearlyRevenue: (json['yearly_revenue'] as num).toDouble(),
       totalBookingsCount: json['total_bookings_count'] as int,
     );

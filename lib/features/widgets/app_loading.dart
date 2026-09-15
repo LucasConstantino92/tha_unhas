@@ -64,7 +64,10 @@ class AppLoadingOverlay extends StatelessWidget {
                     ),
                     color: theme.colorScheme.surface,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 24,
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [

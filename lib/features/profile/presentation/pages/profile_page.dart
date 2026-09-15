@@ -76,7 +76,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const AppText.titleMedium('Editar Dados', fontWeight: FontWeight.bold),
+                          const AppText.titleMedium(
+                            'Editar Dados',
+                            fontWeight: FontWeight.bold,
+                          ),
                           IconButton(
                             icon: const Icon(Icons.close),
                             onPressed: () => Navigator.pop(context),
@@ -87,7 +90,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       AppTextField(
                         controller: nameController,
                         labelText: 'Nome Completo',
-                        prefixIcon: const Icon(Icons.person_outline, color: AppTheme.primaryAccentColor),
+                        prefixIcon: const Icon(
+                          Icons.person_outline,
+                          color: AppTheme.primaryAccentColor,
+                        ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Insira seu nome completo';
@@ -99,11 +105,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       AppTextField(
                         controller: phoneController,
                         labelText: 'Telefone',
-                        prefixIcon: const Icon(Icons.phone_outlined, color: AppTheme.primaryAccentColor),
+                        prefixIcon: const Icon(
+                          Icons.phone_outlined,
+                          color: AppTheme.primaryAccentColor,
+                        ),
                         keyboardType: TextInputType.phone,
-                        inputFormatters: [
-                          PhoneTextInputFormatter(),
-                        ],
+                        inputFormatters: [PhoneTextInputFormatter()],
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Insira seu telefone';
@@ -116,28 +123,47 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         controller: emailController,
                         labelText: 'E-mail',
                         enabled: false,
-                        prefixIcon: const Icon(Icons.email_outlined, color: Colors.grey),
+                        prefixIcon: const Icon(
+                          Icons.email_outlined,
+                          color: Colors.grey,
+                        ),
                       ),
                       const SizedBox(height: 24),
                       isSaving
-                          ? const Center(child: AppLoading(color: AppTheme.primaryAccentColor))
+                          ? const Center(
+                              child: AppLoading(
+                                color: AppTheme.primaryAccentColor,
+                              ),
+                            )
                           : AppButton.filled(
                               text: 'Salvar Alterações',
                               onPressed: () async {
                                 if (formKey.currentState!.validate()) {
                                   setModalState(() => isSaving = true);
                                   try {
-                                    await ref.read(authProvider.notifier).updateProfile(
+                                    await ref
+                                        .read(authProvider.notifier)
+                                        .updateProfile(
                                           nameController.text.trim(),
                                           phoneController.text.trim(),
                                         );
                                     if (context.mounted) {
                                       Navigator.pop(context);
-                                      AppToast.success(context, message: 'Dados atualizados com sucesso!');
+                                      AppToast.success(
+                                        context,
+                                        message:
+                                            'Dados atualizados com sucesso!',
+                                      );
                                     }
                                   } catch (e) {
                                     if (context.mounted) {
-                                      AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao atualizar'));
+                                      AppToast.error(
+                                        context,
+                                        message: AppErrorFormatter.format(
+                                          e,
+                                          prefix: 'Erro ao atualizar',
+                                        ),
+                                      );
                                     }
                                   } finally {
                                     if (context.mounted) {
@@ -158,10 +184,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  void _confirmDeleteAccount(BuildContext context, UserProfile user, List<AppointmentEntity> bookings) {
+  void _confirmDeleteAccount(
+    BuildContext context,
+    UserProfile user,
+    List<AppointmentEntity> bookings,
+  ) {
     final activeBookings = bookings.where((b) {
       return b.userId == user.id &&
-          (b.status == 'pending' || b.status == 'confirmed' || b.status == 'in_progress');
+          (b.status == 'pending' ||
+              b.status == 'confirmed' ||
+              b.status == 'in_progress');
     }).toList();
 
     final hasBookings = activeBookings.isNotEmpty;
@@ -191,7 +223,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
           try {
             final idsToCancel = activeBookings.map((b) => b.id).toList();
-            await ref.read(authProvider.notifier).softDeleteAccount(idsToCancel);
+            await ref
+                .read(authProvider.notifier)
+                .softDeleteAccount(idsToCancel);
 
             if (context.mounted) {
               Navigator.of(context).pop(); // pop progress dialog
@@ -204,7 +238,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           } catch (e) {
             if (context.mounted) {
               Navigator.of(context).pop(); // pop progress dialog
-              AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao excluir conta'));
+              AppToast.error(
+                context,
+                message: AppErrorFormatter.format(
+                  e,
+                  prefix: 'Erro ao excluir conta',
+                ),
+              );
             }
           }
         },
@@ -243,7 +283,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           } catch (e) {
             if (context.mounted) {
               Navigator.of(context).pop(); // pop progress dialog
-              AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao sair da conta'));
+              AppToast.error(
+                context,
+                message: AppErrorFormatter.format(
+                  e,
+                  prefix: 'Erro ao sair da conta',
+                ),
+              );
             }
           }
         },
@@ -258,9 +304,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final bookings = bookingsAsync.valueOrNull ?? [];
 
     if (user == null) {
-      return const Scaffold(
-        body: Center(child: AppLoading()),
-      );
+      return const Scaffold(body: Center(child: AppLoading()));
     }
 
     return Scaffold(
@@ -269,7 +313,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout_outlined, color: AppTheme.secondaryAccentColor),
+            icon: const Icon(
+              Icons.logout_outlined,
+              color: AppTheme.secondaryAccentColor,
+            ),
             onPressed: () async {
               await ref.read(authProvider.notifier).logout();
               if (context.mounted) {
@@ -297,13 +344,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         width: 90,
                         height: 90,
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryAccentColor.withValues(alpha: 0.15),
+                          color: AppTheme.primaryAccentColor.withValues(
+                            alpha: 0.15,
+                          ),
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppTheme.primaryAccentColor, width: 2),
+                          border: Border.all(
+                            color: AppTheme.primaryAccentColor,
+                            width: 2,
+                          ),
                         ),
                         child: Center(
                           child: Text(
-                            user.name.isEmpty ? 'C' : user.name[0].toUpperCase(),
+                            user.name.isEmpty
+                                ? 'C'
+                                : user.name[0].toUpperCase(),
                             style: const TextStyle(
                               fontSize: 36,
                               fontWeight: FontWeight.bold,
@@ -322,9 +376,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                     const SizedBox(height: 4),
                     Center(
-                      child: AppBadge.primary(
-                        label: user.role.toUpperCase(),
-                      ),
+                      child: AppBadge.primary(label: user.role.toUpperCase()),
                     ),
                     const SizedBox(height: 32),
                     // Detalhes do usuário
@@ -332,9 +384,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
-                          _buildDetailRow(Icons.email_outlined, 'E-mail', user.email),
+                          _buildDetailRow(
+                            Icons.email_outlined,
+                            'E-mail',
+                            user.email,
+                          ),
                           const Divider(height: 24),
-                          _buildDetailRow(Icons.phone_outlined, 'Telefone', user.phone.isEmpty ? 'Não cadastrado' : user.phone),
+                          _buildDetailRow(
+                            Icons.phone_outlined,
+                            'Telefone',
+                            user.phone.isEmpty ? 'Não cadastrado' : user.phone,
+                          ),
                         ],
                       ),
                     ),
@@ -342,15 +402,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     AppButton.outlined(
                       text: 'Editar Dados',
                       icon: Icons.edit_outlined,
-                      onPressed: () => _showEditProfileBottomSheet(context, user),
+                      onPressed: () =>
+                          _showEditProfileBottomSheet(context, user),
                     ),
                     const SizedBox(height: 12),
                     AppButton.outlined(
                       text: 'Excluir Conta',
                       textColor: Colors.red,
-                      backgroundColor: Colors.red, // border color in AppButton.outlined
+                      backgroundColor:
+                          Colors.red, // border color in AppButton.outlined
                       icon: Icons.delete_outline,
-                      onPressed: () => _confirmDeleteAccount(context, user, bookings),
+                      onPressed: () =>
+                          _confirmDeleteAccount(context, user, bookings),
                     ),
                     const SizedBox(height: 12),
                     AppButton.filled(

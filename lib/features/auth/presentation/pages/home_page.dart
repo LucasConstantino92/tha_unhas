@@ -16,12 +16,10 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.sb;
     final bookingsAsync = ref.watch(bookingsListProvider);
-    final bookings = bookingsAsync.valueOrNull ?? []; 
+    final bookings = bookingsAsync.valueOrNull ?? [];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Olá, ${user.name}!'),
-      ),
+      appBar: AppBar(title: Text('Olá, ${user.name}!')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -41,7 +39,10 @@ class HomePage extends ConsumerWidget {
                         // Change to AGENDA tab (index 1)
                         ref.read(navigationIndexProvider.notifier).setIndex(1);
                       },
-                      child: const Text('Ver Todos', style: TextStyle(color: AppTheme.primaryAccentColor)),
+                      child: const Text(
+                        'Ver Todos',
+                        style: TextStyle(color: AppTheme.primaryAccentColor),
+                      ),
                     ),
                 ],
               ),
@@ -76,32 +77,47 @@ class HomePage extends ConsumerWidget {
                     (index) {
                       final booking = bookings[index];
                       String serviceName = booking.serviceName ?? 'Serviço';
-                      if (booking.userId != user?.id && booking.clientName != null) {
+                      if (booking.userId != user?.id &&
+                          booking.clientName != null) {
                         serviceName += ' (${booking.clientName})';
                       }
-                      final formattedDate = DateFormat('dd/MM/yyyy - HH:mm').format(booking.startTime.toLocal());
-                      
+                      final formattedDate = DateFormat(
+                        'dd/MM/yyyy - HH:mm',
+                      ).format(booking.startTime.toLocal());
+
                       // Definir cor/label do status
-                      final statusEnum = AppointmentStatus.fromValue(booking.status);
+                      final statusEnum = AppointmentStatus.fromValue(
+                        booking.status,
+                      );
                       Widget statusBadge;
                       switch (statusEnum) {
                         case AppointmentStatus.confirmed:
-                          statusBadge = AppBadge.success(label: statusEnum.label);
+                          statusBadge = AppBadge.success(
+                            label: statusEnum.label,
+                          );
                           break;
                         case AppointmentStatus.cancelled:
                           statusBadge = AppBadge.error(label: statusEnum.label);
                           break;
                         case AppointmentStatus.noShow:
-                          statusBadge = AppBadge.secondary(label: statusEnum.label);
+                          statusBadge = AppBadge.secondary(
+                            label: statusEnum.label,
+                          );
                           break;
                         case AppointmentStatus.inProgress:
-                          statusBadge = AppBadge.primary(label: statusEnum.label);
+                          statusBadge = AppBadge.primary(
+                            label: statusEnum.label,
+                          );
                           break;
                         case AppointmentStatus.completed:
-                          statusBadge = AppBadge.success(label: statusEnum.label);
+                          statusBadge = AppBadge.success(
+                            label: statusEnum.label,
+                          );
                           break;
                         case AppointmentStatus.pending:
-                          statusBadge = AppBadge.warning(label: statusEnum.label);
+                          statusBadge = AppBadge.warning(
+                            label: statusEnum.label,
+                          );
                       }
 
                       return AppCard(
@@ -109,15 +125,24 @@ class HomePage extends ConsumerWidget {
                         padding: const EdgeInsets.all(16),
                         child: Row(
                           children: [
-                            const Icon(Icons.event, color: AppTheme.primaryAccentColor),
+                            const Icon(
+                              Icons.event,
+                              color: AppTheme.primaryAccentColor,
+                            ),
                             const SizedBox(width: 16),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  AppText.bodyMedium(serviceName, fontWeight: FontWeight.bold),
+                                  AppText.bodyMedium(
+                                    serviceName,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                   const SizedBox(height: 4),
-                                  AppText.bodySmall(formattedDate, color: Colors.grey),
+                                  AppText.bodySmall(
+                                    formattedDate,
+                                    color: Colors.grey,
+                                  ),
                                 ],
                               ),
                             ),

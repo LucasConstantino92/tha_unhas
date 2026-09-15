@@ -13,12 +13,21 @@ class SbHelpers {
 
   SupabaseQueryBuilder _query() => _supabase.from(_table);
 
-  PostgrestFilterBuilder<List<Map<String, dynamic>>> select({required String columns}) {
+  PostgrestFilterBuilder<List<Map<String, dynamic>>> select({
+    required String columns,
+  }) {
     return _query().select(columns);
   }
 
-  Future<Json> insertWithReturn(Object values, {required String columns}) async {
-    final PostgrestMap response = await _query().insert(values).select(columns).limit(1).single();
+  Future<Json> insertWithReturn(
+    Object values, {
+    required String columns,
+  }) async {
+    final PostgrestMap response = await _query()
+        .insert(values)
+        .select(columns)
+        .limit(1)
+        .single();
     return response;
   }
 
@@ -82,7 +91,9 @@ class SbHelpers {
     String columns = '*',
     Map<String, Object>? where,
   }) async {
-    PostgrestFilterBuilder<List<Map<String, dynamic>>> q = select(columns: columns);
+    PostgrestFilterBuilder<List<Map<String, dynamic>>> q = select(
+      columns: columns,
+    );
 
     if (where != null) {
       for (final MapEntry<String, Object> eq in where.entries) {
@@ -90,7 +101,10 @@ class SbHelpers {
       }
     }
 
-    return await q.limit(1).maybeSingle().withConverter((d) => d == null ? null : converter(d));
+    return await q
+        .limit(1)
+        .maybeSingle()
+        .withConverter((d) => d == null ? null : converter(d));
   }
 
   Future<T> single<T>(
@@ -98,7 +112,9 @@ class SbHelpers {
     required String columns,
     Map<String, Object>? where,
   }) {
-    PostgrestFilterBuilder<List<Map<String, dynamic>>> q = select(columns: columns);
+    PostgrestFilterBuilder<List<Map<String, dynamic>>> q = select(
+      columns: columns,
+    );
 
     if (where != null) {
       for (final MapEntry<String, Object> eq in where.entries) {
@@ -112,7 +128,9 @@ class SbHelpers {
   Stream<List<T>> stream<T>(List<String> pk, T Function(Json) converter) {
     assert(pk.isNotEmpty, 'Primary key is mandatory');
 
-    return _query().stream(primaryKey: pk).map((data) => data.map(converter).toList());
+    return _query()
+        .stream(primaryKey: pk)
+        .map((data) => data.map(converter).toList());
   }
 
   Stream<List<T>> streamOrder<T>(
@@ -127,7 +145,9 @@ class SbHelpers {
     Stream<List<Map<String, dynamic>>> sourceStream;
 
     if (orderBy != null) {
-      sourceStream = _query().stream(primaryKey: pk).order(orderBy, ascending: ascending);
+      sourceStream = _query()
+          .stream(primaryKey: pk)
+          .order(orderBy, ascending: ascending);
     } else {
       sourceStream = _query().stream(primaryKey: pk);
     }
@@ -155,7 +175,9 @@ class SbHelpers {
     required String columns,
     Map<String, Object>? where,
   }) {
-    PostgrestFilterBuilder<List<Map<String, dynamic>>> q = select(columns: columns);
+    PostgrestFilterBuilder<List<Map<String, dynamic>>> q = select(
+      columns: columns,
+    );
 
     if (where != null) {
       for (final MapEntry<String, Object> eq in where.entries) {

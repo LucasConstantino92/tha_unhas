@@ -5,7 +5,6 @@ enum SBTables {
   userProfile('user_profiles'),
   services('services'),
   appointments('appointments'),
-  adminStats('admin_stats'),
   workSchedules('work_schedules'),
   nailColors('nail_colors');
 

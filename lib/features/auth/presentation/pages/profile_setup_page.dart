@@ -59,7 +59,13 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
         }
       } catch (e) {
         if (mounted) {
-          AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao salvar perfil'));
+          AppToast.error(
+            context,
+            message: AppErrorFormatter.format(
+              e,
+              prefix: 'Erro ao salvar perfil',
+            ),
+          );
         }
       } finally {
         if (mounted) {
@@ -74,7 +80,8 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Completar Perfil'),
-        automaticallyImplyLeading: false, // Prevent going back to sign up screen
+        automaticallyImplyLeading:
+            false, // Prevent going back to sign up screen
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -103,7 +110,10 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                   AppTextField(
                     controller: _nameController,
                     labelText: 'Nome Completo',
-                    prefixIcon: const Icon(Icons.person_outline, color: AppTheme.primaryAccentColor),
+                    prefixIcon: const Icon(
+                      Icons.person_outline,
+                      color: AppTheme.primaryAccentColor,
+                    ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return 'Por favor, insira seu nome completo';
@@ -119,10 +129,11 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
                     labelText: 'Telefone',
-                    prefixIcon: const Icon(Icons.phone_outlined, color: AppTheme.primaryAccentColor),
-                    inputFormatters: [
-                      PhoneTextInputFormatter(),
-                    ],
+                    prefixIcon: const Icon(
+                      Icons.phone_outlined,
+                      color: AppTheme.primaryAccentColor,
+                    ),
+                    inputFormatters: [PhoneTextInputFormatter()],
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return 'Por favor, insira seu telefone';
@@ -136,7 +147,9 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                   const SizedBox(height: 32),
                   // Button to Save Profile
                   _isLoading
-                      ? const Center(child: AppLoading(color: AppTheme.primaryAccentColor))
+                      ? const Center(
+                          child: AppLoading(color: AppTheme.primaryAccentColor),
+                        )
                       : AppButton.filled(
                           text: 'Finalizar Cadastro',
                           onPressed: _submit,

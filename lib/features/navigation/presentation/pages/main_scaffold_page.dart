@@ -29,16 +29,14 @@ class MainScaffoldPage extends ConsumerWidget {
       _NavItem(icon: Icons.home_rounded, label: 'HOME'),
       _NavItem(icon: Icons.calendar_today_rounded, label: 'AGENDA'),
       _NavItem(icon: Icons.person_rounded, label: 'PERFIL'),
-      if (isAdmin) _NavItem(icon: Icons.admin_panel_settings_rounded, label: 'ADMIN'),
+      if (isAdmin)
+        _NavItem(icon: Icons.admin_panel_settings_rounded, label: 'ADMIN'),
     ];
 
     final safeIndex = currentIndex >= pages.length ? 0 : currentIndex;
 
     return Scaffold(
-      body: IndexedStack(
-        index: safeIndex,
-        children: pages,
-      ),
+      body: IndexedStack(index: safeIndex, children: pages),
       bottomNavigationBar: _AnimatedBottomNav(
         items: navItems,
         currentIndex: safeIndex,
@@ -79,7 +77,9 @@ class _AnimatedBottomNav extends StatelessWidget {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         systemNavigationBarColor: theme.scaffoldBackgroundColor,
-        systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarIconBrightness: isDark
+            ? Brightness.light
+            : Brightness.dark,
         systemNavigationBarDividerColor: Colors.transparent,
       ),
     );
@@ -107,7 +107,7 @@ class _AnimatedBottomNav extends StatelessWidget {
                     color: theme.scaffoldBackgroundColor,
                     boxShadow: [
                       BoxShadow(
-                        color: isDark 
+                        color: isDark
                             ? Colors.black.withValues(alpha: 0.3)
                             : Colors.black.withValues(alpha: 0.05),
                         blurRadius: 20,
@@ -131,10 +131,15 @@ class _AnimatedBottomNav extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AppTheme.primaryAccentColor,
                       shape: BoxShape.circle,
-                      border: Border.all(color: theme.scaffoldBackgroundColor, width: 4),
+                      border: Border.all(
+                        color: theme.scaffoldBackgroundColor,
+                        width: 4,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.primaryAccentColor.withValues(alpha: 0.4),
+                          color: AppTheme.primaryAccentColor.withValues(
+                            alpha: 0.4,
+                          ),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -160,13 +165,19 @@ class _AnimatedBottomNav extends StatelessWidget {
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeOutBack,
-                          transform: Matrix4.translationValues(0, isSelected ? -24 : 0, 0),
+                          transform: Matrix4.translationValues(
+                            0,
+                            isSelected ? -24 : 0,
+                            0,
+                          ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
                                 item.icon,
-                                color: isSelected ? Colors.white : AppTheme.primaryAccentColor,
+                                color: isSelected
+                                    ? Colors.white
+                                    : AppTheme.primaryAccentColor,
                                 size: 26,
                               ),
                               if (!isSelected) ...[

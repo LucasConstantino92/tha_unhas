@@ -33,8 +33,12 @@ class AppointmentModel extends AppointmentEntity {
       paidPrice: (json['paid_price'] as num).toDouble(),
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
-      clientName: userProfiles != null ? (userProfiles['nome'] ?? userProfiles['name']) as String? : null,
-      clientPhone: userProfiles != null ? userProfiles['phone'] as String? : null,
+      clientName: userProfiles != null
+          ? (userProfiles['name'] ?? userProfiles['nome']) as String?
+          : null,
+      clientPhone: userProfiles != null
+          ? userProfiles['phone'] as String?
+          : null,
       serviceName: services != null ? services['name'] as String? : null,
       colorId: json['color_id'] as String?,
       colorHex: nailColors != null ? nailColors['hex_code'] as String? : null,

@@ -29,11 +29,11 @@ class AppCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final defaultBorderColor = isDark 
+    final defaultBorderColor = isDark
         ? theme.colorScheme.onSurface.withValues(alpha: 0.08)
         : theme.colorScheme.primary.withValues(alpha: 0.12);
 
-    final widgetBorder = showBorder 
+    final widgetBorder = showBorder
         ? Border.all(color: borderColor ?? defaultBorderColor, width: 1)
         : null;
 
@@ -61,10 +61,7 @@ class AppCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius),
           child: InkWell(
             onTap: onTap,
-            child: Padding(
-              padding: padding ?? EdgeInsets.zero,
-              child: child,
-            ),
+            child: Padding(padding: padding ?? EdgeInsets.zero, child: child),
           ),
         ),
       );

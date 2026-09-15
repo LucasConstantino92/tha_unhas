@@ -36,28 +36,36 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         final password = _passwordController.text.trim();
 
         // 1. Sign Up in Supabase Auth
-        final userId = await ref.read(authProvider.notifier).signUp(email, password);
+        final userId = await ref
+            .read(authProvider.notifier)
+            .signUp(email, password);
 
         if (userId != null) {
           if (mounted) {
-            AppToast.success(context, message: 'Conta criada! Agora preencha seu perfil.');
+            AppToast.success(
+              context,
+              message: 'Conta criada! Agora preencha seu perfil.',
+            );
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (_) => ProfileSetupPage(
-                  userId: userId,
-                  email: email,
-                ),
+                builder: (_) => ProfileSetupPage(userId: userId, email: email),
               ),
             );
           }
         } else {
           if (mounted) {
-            AppToast.error(context, message: 'Falha ao criar conta. Tente novamente.');
+            AppToast.error(
+              context,
+              message: 'Falha ao criar conta. Tente novamente.',
+            );
           }
         }
       } catch (e) {
         if (mounted) {
-          AppToast.error(context, message: AppErrorFormatter.format(e, prefix: 'Erro ao cadastrar'));
+          AppToast.error(
+            context,
+            message: AppErrorFormatter.format(e, prefix: 'Erro ao cadastrar'),
+          );
         }
       } finally {
         if (mounted) {
@@ -106,12 +114,17 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     labelText: 'E-mail',
-                    prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.primaryAccentColor),
+                    prefixIcon: const Icon(
+                      Icons.email_outlined,
+                      color: AppTheme.primaryAccentColor,
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira seu e-mail';
                       }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                      if (!RegExp(
+                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                      ).hasMatch(value)) {
                         return 'Insira um e-mail válido';
                       }
                       return null;
@@ -123,7 +136,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     controller: _passwordController,
                     obscureText: true,
                     labelText: 'Senha',
-                    prefixIcon: const Icon(Icons.lock_outlined, color: AppTheme.primaryAccentColor),
+                    prefixIcon: const Icon(
+                      Icons.lock_outlined,
+                      color: AppTheme.primaryAccentColor,
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira sua senha';
@@ -140,7 +156,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     controller: _confirmPasswordController,
                     obscureText: true,
                     labelText: 'Confirmar Senha',
-                    prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppTheme.primaryAccentColor),
+                    prefixIcon: const Icon(
+                      Icons.lock_outline_rounded,
+                      color: AppTheme.primaryAccentColor,
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, confirme sua senha';
@@ -154,7 +173,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   const SizedBox(height: 32),
                   // Botão de Cadastro
                   _isLoading
-                      ? const Center(child: AppLoading(color: AppTheme.primaryAccentColor))
+                      ? const Center(
+                          child: AppLoading(color: AppTheme.primaryAccentColor),
+                        )
                       : AppButton.filled(
                           text: 'Próximo Passo',
                           onPressed: _submit,

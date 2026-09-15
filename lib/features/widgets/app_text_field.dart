@@ -61,7 +61,7 @@ class _AppTextFieldState extends State<AppTextField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return TextFormField(
       controller: widget.controller,
       obscureText: _obscureText,
@@ -77,8 +77,8 @@ class _AppTextFieldState extends State<AppTextField> {
       maxLines: widget.maxLines,
       minLines: widget.minLines,
       style: TextStyle(
-        color: widget.enabled 
-            ? theme.colorScheme.onSurface 
+        color: widget.enabled
+            ? theme.colorScheme.onSurface
             : theme.colorScheme.onSurface.withValues(alpha: 0.5),
       ),
       decoration: InputDecoration(
@@ -90,7 +90,9 @@ class _AppTextFieldState extends State<AppTextField> {
         suffixIcon: widget.obscureText
             ? IconButton(
                 icon: Icon(
-                  _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  _obscureText
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
                 onPressed: () {

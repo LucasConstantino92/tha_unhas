@@ -6,8 +6,12 @@ import '../../domain/repositories/nail_colors_repository.dart';
 import '../../data/datasources/nail_colors_remote_datasource.dart';
 import '../../data/repositories/nail_colors_repository_impl.dart';
 
-final nailColorsDatasourceProvider = Provider<NailColorsRemoteDatasource>((ref) {
-  return NailColorsRemoteDatasourceImpl(supabaseClient: Supabase.instance.client);
+final nailColorsDatasourceProvider = Provider<NailColorsRemoteDatasource>((
+  ref,
+) {
+  return NailColorsRemoteDatasourceImpl(
+    supabaseClient: Supabase.instance.client,
+  );
 });
 
 final nailColorsRepositoryProvider = Provider<NailColorsRepository>((ref) {
@@ -15,9 +19,10 @@ final nailColorsRepositoryProvider = Provider<NailColorsRepository>((ref) {
   return NailColorsRepositoryImpl(remoteDatasource: datasource);
 });
 
-final nailColorsListProvider = AsyncNotifierProvider<NailColorsListNotifier, List<NailColorEntity>>(() {
-  return NailColorsListNotifier();
-});
+final nailColorsListProvider =
+    AsyncNotifierProvider<NailColorsListNotifier, List<NailColorEntity>>(() {
+      return NailColorsListNotifier();
+    });
 
 class NailColorsListNotifier extends AsyncNotifier<List<NailColorEntity>> {
   @override
@@ -26,7 +31,12 @@ class NailColorsListNotifier extends AsyncNotifier<List<NailColorEntity>> {
     return repository.getNailColors();
   }
 
-  Future<void> addNailColor(String hexCode, String? name, bool isAvailable, {File? imageFile}) async {
+  Future<void> addNailColor(
+    String hexCode,
+    String? name,
+    bool isAvailable, {
+    File? imageFile,
+  }) async {
     final repository = ref.watch(nailColorsRepositoryProvider);
     final entity = NailColorEntity(
       id: '',
@@ -35,9 +45,12 @@ class NailColorsListNotifier extends AsyncNotifier<List<NailColorEntity>> {
       isAvailable: isAvailable,
       createdAt: DateTime.now(),
     );
-    
-    final newColor = await repository.addNailColor(entity, imageFile: imageFile);
-    
+
+    final newColor = await repository.addNailColor(
+      entity,
+      imageFile: imageFile,
+    );
+
     final currentList = state.valueOrNull ?? [];
     state = AsyncData([newColor, ...currentList]);
   }
@@ -45,7 +58,7 @@ class NailColorsListNotifier extends AsyncNotifier<List<NailColorEntity>> {
   Future<void> updateNailColor(NailColorEntity color) async {
     final repository = ref.watch(nailColorsRepositoryProvider);
     await repository.updateNailColor(color);
-    
+
     final currentList = state.valueOrNull ?? [];
     final index = currentList.indexWhere((c) => c.id == color.id);
     if (index != -1) {
