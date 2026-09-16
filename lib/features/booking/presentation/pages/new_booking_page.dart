@@ -31,6 +31,65 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
 
   List<String> _availableSlots = [];
   bool _isLoadingSlots = false;
+  Set<String> _openDates = {};
+  bool _isLoadingDates = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAvailableDates();
+  }
+
+  Future<void> _fetchAvailableDates() async {
+    setState(() => _isLoadingDates = true);
+    try {
+      final now = DateTime.now();
+      final startDateStr = DateFormat('yyyy-MM-dd').format(now);
+      final endDateStr = DateFormat(
+        'yyyy-MM-dd',
+      ).format(now.add(const Duration(days: 60)));
+
+      final List<dynamic> response = await Supabase.instance.client.rpc(
+        'get_available_dates',
+        params: {'p_start_date': startDateStr, 'p_end_date': endDateStr},
+      );
+
+      final dates = <String>{};
+      for (final item in response) {
+        if (item is Map) {
+          dates.add((item['available_date'] ?? '').toString());
+        } else {
+          dates.add(item.toString());
+        }
+      }
+
+      setState(() {
+        _openDates = dates;
+      });
+
+      // Se a data atual selecionada não estiver aberta, ajusta para o primeiro dia aberto
+      final currentSelectedStr = DateFormat('yyyy-MM-dd').format(_selectedDay);
+      if (!_openDates.contains(currentSelectedStr) && _openDates.isNotEmpty) {
+        final sortedDates = _openDates.toList()..sort();
+        final firstDate = DateTime.tryParse(sortedDates.first);
+        if (firstDate != null) {
+          setState(() {
+            _selectedDay = firstDate;
+            _focusedDay = firstDate;
+          });
+        }
+      }
+
+      // Se já houver serviços selecionados, busca os slots do dia atualizado
+      if (_selectedServices.isNotEmpty) {
+        _fetchAvailableSlots();
+      }
+    } catch (e) {
+      debugPrint('Erro ao buscar datas com atendimento aberto: $e');
+    } finally {
+      setState(() => _isLoadingDates = false);
+    }
+  }
 
   Future<void> _fetchAvailableSlots() async {
     final totalDuration = _selectedServices.fold(
@@ -51,6 +110,15 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
 
     try {
       final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDay);
+
+      // Se a data não tiver expediente cadastrado, trata diretamente como fechada
+      if (_openDates.isNotEmpty && !_openDates.contains(dateStr)) {
+        setState(() {
+          _availableSlots = [];
+        });
+        return;
+      }
+
       final List<dynamic> response = await Supabase.instance.client.rpc(
         'get_available_slots',
         params: {'p_date': dateStr, 'p_duration_minutes': totalDuration},
@@ -211,7 +279,16 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
                   _fetchAvailableSlots();
                 },
                 enabledDayPredicate: (day) {
-                  return day.weekday != DateTime.sunday;
+                  if (day.isBefore(DateUtils.dateOnly(DateTime.now()))) {
+                    return false;
+                  }
+                  // Se ainda estiver carregando a primeira busca de datas, permite
+                  if (_isLoadingDates && _openDates.isEmpty) {
+                    return day.weekday != DateTime.sunday;
+                  }
+                  // Apenas dias com expediente cadastrado pelo admin ficam habilitados
+                  final dayStr = DateFormat('yyyy-MM-dd').format(day);
+                  return _openDates.contains(dayStr);
                 },
               ),
 
@@ -240,6 +317,40 @@ class _NewBookingPageState extends ConsumerState<NewBookingPage> {
               else if (_isLoadingSlots)
                 const Center(
                   child: AppLoading(color: AppTheme.primaryAccentColor),
+                )
+              else if (_openDates.isNotEmpty &&
+                  !_openDates.contains(
+                    DateFormat('yyyy-MM-dd').format(_selectedDay),
+                  ))
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: const Center(
+                    child: Column(
+                      children: [
+                        Icon(Icons.event_busy, color: Colors.grey, size: 36),
+                        SizedBox(height: 8),
+                        AppText.bodyMedium(
+                          'Estabelecimento fechado neste dia',
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 4),
+                        AppText.bodySmall(
+                          'Não há expediente cadastrado para esta data. Selecione outro dia no calendário.',
+                          color: Colors.grey,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
                 )
               else if (_availableSlots.isEmpty)
                 Container(

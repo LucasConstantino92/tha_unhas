@@ -10,7 +10,9 @@ abstract class AdminRemoteDatasource {
   Future<void> updateBookingStatus(String bookingId, String status);
   Future<List<WorkScheduleModel>> getWorkSchedules();
   Future<void> addWorkSchedule(WorkScheduleModel model);
+  Future<void> addWorkSchedulesBatch(List<WorkScheduleModel> models);
   Future<void> deleteWorkSchedule(String id);
+  Future<void> deleteSchedulesForDate(DateTime date);
 }
 
 class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
@@ -190,21 +192,90 @@ class AdminRemoteDatasourceImpl implements AdminRemoteDatasource {
   }
 
   @override
+  Future<void> addWorkSchedulesBatch(List<WorkScheduleModel> models) async {
+    if (models.isEmpty) return;
+    try {
+      AppLogger.info(
+        'Adicionando lote de ${models.length} horários no Supabase',
+        'AdminRemoteDatasource',
+      );
+      final listData = models.map((m) => m.toJson()).toList();
+      await _supabaseClient.from('work_schedules').insert(listData);
+      AppLogger.success(
+        'Lote de horários adicionado com sucesso',
+        'AdminRemoteDatasource',
+      );
+    } catch (e, stack) {
+      AppLogger.error(
+        'Erro ao adicionar lote de horários',
+        e,
+        stack,
+        'AdminRemoteDatasource',
+      );
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> deleteWorkSchedule(String id) async {
     try {
       AppLogger.info(
-        'Removendo bloqueio de agenda ID: $id no Supabase',
+        'Removendo horário/bloqueio ID: $id no Supabase',
         'AdminRemoteDatasource',
       );
       final helper = SBTables.workSchedules.helper(_supabaseClient);
       await helper.delete({'id': id});
       AppLogger.success(
-        'Bloqueio de agenda ID: $id removido com sucesso',
+        'Horário/bloqueio ID: $id removido com sucesso',
         'AdminRemoteDatasource',
       );
     } catch (e, stack) {
       AppLogger.error(
-        'Erro ao remover bloqueio de agenda ID: $id',
+        'Erro ao remover horário/bloqueio ID: $id',
+        e,
+        stack,
+        'AdminRemoteDatasource',
+      );
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteSchedulesForDate(DateTime date) async {
+    try {
+      final start = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        0,
+        0,
+        0,
+      ).toUtc().toIso8601String();
+      final end = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        23,
+        59,
+        59,
+      ).toUtc().toIso8601String();
+
+      AppLogger.info(
+        'Removendo horários da data $date no Supabase',
+        'AdminRemoteDatasource',
+      );
+      await _supabaseClient
+          .from('work_schedules')
+          .delete()
+          .gte('start_time', start)
+          .lte('start_time', end);
+      AppLogger.success(
+        'Horários da data $date removidos com sucesso',
+        'AdminRemoteDatasource',
+      );
+    } catch (e, stack) {
+      AppLogger.error(
+        'Erro ao remover horários da data $date',
         e,
         stack,
         'AdminRemoteDatasource',

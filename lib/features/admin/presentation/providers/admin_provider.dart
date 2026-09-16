@@ -64,11 +64,53 @@ class WorkSchedulesList extends _$WorkSchedulesList {
     });
   }
 
-  Future<void> deleteBlock(String id) async {
+  Future<void> addWorkShift({
+    required DateTime startTime,
+    required DateTime endTime,
+    String? note,
+  }) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(adminRepositoryProvider);
+      final entity = WorkScheduleEntity(
+        id: '',
+        startTime: startTime,
+        endTime: endTime,
+        isBlocked: false,
+        note: note,
+        createdAt: DateTime.now(),
+      );
+      await repo.addWorkSchedule(entity);
+      return repo.getWorkSchedules();
+    });
+  }
+
+  Future<void> addWorkShiftsBatch(List<WorkScheduleEntity> items) async {
+    if (items.isEmpty) return;
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(adminRepositoryProvider);
+      await repo.addWorkSchedulesBatch(items);
+      return repo.getWorkSchedules();
+    });
+  }
+
+  Future<void> deleteBlock(String id) => deleteSchedule(id);
+
+  Future<void> deleteSchedule(String id) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final repo = ref.read(adminRepositoryProvider);
       await repo.deleteWorkSchedule(id);
+      return repo.getWorkSchedules();
+    });
+  }
+
+  Future<void> deleteSchedulesForDate(DateTime date) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(adminRepositoryProvider);
+      await repo.deleteSchedulesForDate(date);
       return repo.getWorkSchedules();
     });
   }

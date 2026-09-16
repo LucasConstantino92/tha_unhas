@@ -10,5 +10,7 @@ abstract class AdminRepository {
   ); // Aprovado / Rejeitado
   Future<List<WorkScheduleEntity>> getWorkSchedules();
   Future<void> addWorkSchedule(WorkScheduleEntity model);
+  Future<void> addWorkSchedulesBatch(List<WorkScheduleEntity> models);
   Future<void> deleteWorkSchedule(String id);
+  Future<void> deleteSchedulesForDate(DateTime date);
 }

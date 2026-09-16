@@ -20,6 +20,7 @@ import '../../../../core/utils/currency_mask.dart';
 import '../providers/admin_provider.dart';
 import '../providers/nail_colors_provider.dart';
 import '../../domain/entities/nail_color_entity.dart';
+import '../../domain/entities/work_schedule_entity.dart';
 
 class AdminPage extends ConsumerStatefulWidget {
   const AdminPage({super.key});
@@ -60,7 +61,7 @@ class _AdminPageState extends ConsumerState<AdminPage>
             Tab(icon: Icon(Icons.dashboard_outlined), text: 'Métricas'),
             Tab(icon: Icon(Icons.spa_outlined), text: 'Serviços'),
             Tab(icon: Icon(Icons.calendar_today_outlined), text: 'Agenda'),
-            Tab(icon: Icon(Icons.block_outlined), text: 'Bloqueios'),
+            Tab(icon: Icon(Icons.access_time_outlined), text: 'Horários'),
             Tab(icon: Icon(Icons.color_lens_outlined), text: 'Cores'),
           ],
         ),
@@ -971,81 +972,318 @@ class _AdminPageState extends ConsumerState<AdminPage>
     }
   }
 
-  // --- ABA 4: GERENCIAMENTO DE BLOQUEIOS (FOLGAS) ---
+  // --- ABA 4: GERENCIAMENTO DE HORÁRIOS DE TRABALHO & BLOQUEIOS ---
+  int _scheduleFilterIndex = 0; // 0: Todos, 1: Expediente, 2: Bloqueios
+
   Widget _buildSchedulesTab() {
     final schedulesAsync = ref.watch(workSchedulesListProvider);
 
     return Scaffold(
       body: schedulesAsync.when(
         data: (schedules) {
-          if (schedules.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.block_outlined,
-                    size: 64,
-                    color: Colors.grey,
-                  ),
-                  const SizedBox(height: 16),
-                  const AppText.bodyMedium(
-                    'Nenhum bloqueio de agenda cadastrado.',
-                    color: Colors.grey,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => _showScheduleForm(),
-                    child: const Text('Bloquear Novo Horário'),
-                  ),
-                ],
-              ),
-            );
-          }
+          final filteredSchedules = schedules.where((s) {
+            if (_scheduleFilterIndex == 1) return !s.isBlocked;
+            if (_scheduleFilterIndex == 2) return s.isBlocked;
+            return true;
+          }).toList();
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(24.0),
-            itemCount: schedules.length,
-            itemBuilder: (context, index) {
-              final schedule = schedules[index];
-              final dateStr = DateFormat(
-                'dd/MM/yyyy',
-              ).format(schedule.startTime.toLocal());
-              final startStr = DateFormat(
-                'HH:mm',
-              ).format(schedule.startTime.toLocal());
-              final endStr = DateFormat(
-                'HH:mm',
-              ).format(schedule.endTime.toLocal());
-              final note = schedule.note ?? 'Folga / Bloqueio';
-
-              return AppCard(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(16),
+          return Column(
+            children: [
+              // Banner Informativo sobre a Regra de Negócio
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryAccentColor.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppTheme.primaryAccentColor.withValues(alpha: 0.3),
+                  ),
+                ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const Icon(
+                      Icons.info_outline,
+                      color: AppTheme.primaryAccentColor,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          AppText.bodyLarge(note, fontWeight: FontWeight.bold),
+                          const AppText.bodyMedium(
+                            'Regra de Horários e Agendamentos',
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryAccentColor,
+                          ),
                           const SizedBox(height: 4),
                           AppText.bodySmall(
-                            '$dateStr • das $startStr às $endStr',
-                            color: Colors.grey,
+                            'Os clientes só conseguem marcar horários nos dias e turnos cadastrados aqui. '
+                            'Datas sem horário registrado são tratadas como fechadas.',
+                            color: Colors.black87.withValues(alpha: 0.8),
                           ),
                         ],
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      onPressed: () =>
-                          _confirmDeleteSchedule(schedule.id, note),
+                  ],
+                ),
+              ),
+
+              // Botões de Ação
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 6,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryAccentColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () => _showWorkShiftForm(),
+                        icon: const Icon(Icons.add_business_outlined, size: 18),
+                        label: const Text(
+                          'Definir Horários',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 5,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.black87,
+                          side: BorderSide(color: Colors.grey.shade400),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () => _showBlockForm(),
+                        icon: const Icon(
+                          Icons.block_outlined,
+                          size: 18,
+                          color: Colors.orange,
+                        ),
+                        label: const Text(
+                          'Pausa/Bloqueio',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              );
-            },
+              ),
+
+              // Filtros (Todos / Expedientes / Bloqueios)
+              if (schedules.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 4.0,
+                  ),
+                  child: Row(
+                    children: [
+                      ChoiceChip(
+                        label: Text('Todos (${schedules.length})'),
+                        selected: _scheduleFilterIndex == 0,
+                        onSelected: (val) =>
+                            setState(() => _scheduleFilterIndex = 0),
+                      ),
+                      const SizedBox(width: 8),
+                      ChoiceChip(
+                        label: Text(
+                          'Expediente (${schedules.where((s) => !s.isBlocked).length})',
+                        ),
+                        selected: _scheduleFilterIndex == 1,
+                        onSelected: (val) =>
+                            setState(() => _scheduleFilterIndex = 1),
+                      ),
+                      const SizedBox(width: 8),
+                      ChoiceChip(
+                        label: Text(
+                          'Bloqueios (${schedules.where((s) => s.isBlocked).length})',
+                        ),
+                        selected: _scheduleFilterIndex == 2,
+                        onSelected: (val) =>
+                            setState(() => _scheduleFilterIndex = 2),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Lista de Registros
+              Expanded(
+                child: filteredSchedules.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.event_busy_outlined,
+                              size: 56,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(height: 16),
+                            AppText.bodyMedium(
+                              schedules.isEmpty
+                                  ? 'Nenhum horário de atendimento cadastrado.'
+                                  : 'Nenhum registro para o filtro selecionado.',
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(height: 6),
+                            if (schedules.isEmpty)
+                              const AppText.bodySmall(
+                                'Cadastre os horários para abrir a agenda aos clientes.',
+                                color: Colors.grey,
+                              ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(16.0),
+                        itemCount: filteredSchedules.length,
+                        itemBuilder: (context, index) {
+                          final schedule = filteredSchedules[index];
+                          final dateStr = _formatDateWithWeekday(
+                            schedule.startTime.toLocal(),
+                          );
+                          final startStr = DateFormat(
+                            'HH:mm',
+                          ).format(schedule.startTime.toLocal());
+                          final endStr = DateFormat(
+                            'HH:mm',
+                          ).format(schedule.endTime.toLocal());
+                          final isShift = !schedule.isBlocked;
+                          final defaultTitle = isShift
+                              ? 'Expediente Aberto'
+                              : 'Bloqueio / Pausa';
+                          final title = schedule.note?.isNotEmpty == true
+                              ? schedule.note!
+                              : defaultTitle;
+
+                          return AppCard(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(14),
+                            borderColor: isShift
+                                ? Colors.green.shade300
+                                : Colors.orange.shade300,
+                            showBorder: true,
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: isShift
+                                        ? Colors.green.withValues(alpha: 0.12)
+                                        : Colors.orange.withValues(alpha: 0.12),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    isShift
+                                        ? Icons.work_outline
+                                        : Icons.pause_circle_outline,
+                                    color: isShift
+                                        ? Colors.green.shade700
+                                        : Colors.orange.shade800,
+                                    size: 22,
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: isShift
+                                                  ? Colors.green.shade50
+                                                  : Colors.orange.shade50,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                              border: Border.all(
+                                                color: isShift
+                                                    ? Colors.green.shade200
+                                                    : Colors.orange.shade200,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              isShift ? 'Aberto' : 'Bloqueado',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color: isShift
+                                                    ? Colors.green.shade800
+                                                    : Colors.orange.shade900,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              title,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      AppText.bodySmall(
+                                        '$dateStr • das $startStr às $endStr',
+                                        color: Colors.black87,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.delete_outline,
+                                    color: Colors.red,
+                                  ),
+                                  tooltip: isShift
+                                      ? 'Remover horário (Fechar)'
+                                      : 'Remover bloqueio',
+                                  onPressed: () => _confirmDeleteSchedule(
+                                    schedule.id,
+                                    title,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -1053,16 +1291,11 @@ class _AdminPageState extends ConsumerState<AdminPage>
           child: AppText.bodyMedium(
             AppErrorFormatter.format(
               error,
-              prefix: 'Erro ao carregar bloqueios',
+              prefix: 'Erro ao carregar horários',
             ),
             color: Colors.red,
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppTheme.primaryAccentColor,
-        onPressed: () => _showScheduleForm(),
-        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -1073,10 +1306,641 @@ class _AdminPageState extends ConsumerState<AdminPage>
     return '$hour:$minute';
   }
 
-  void _showScheduleForm() {
-    DateTime selectedDate = DateTime.now().add(
-      const Duration(days: 1),
-    ); // Default tomorrow
+  String _getWeekdayShort(int weekday) {
+    const weekdays = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+    return weekdays[(weekday - 1).clamp(0, 6)];
+  }
+
+  String _formatDateWithWeekday(DateTime date) {
+    final weekdayStr = _getWeekdayShort(date.weekday);
+    final dateStr = DateFormat('dd/MM/yyyy').format(date);
+    return '$weekdayStr, $dateStr';
+  }
+
+  // Formulário para Cadastrar Expediente de Trabalho (Dia Único ou Período)
+  void _showWorkShiftForm() {
+    bool isPeriodMode = false;
+    DateTime selectedDate = DateTime.now();
+    DateTimeRange? periodRange = DateTimeRange(
+      start: DateTime.now(),
+      end: DateTime.now().add(const Duration(days: 14)),
+    );
+
+    // Dias da semana ativos no modo período (1: Seg ... 6: Sáb, 7: Dom)
+    final selectedWeekdays = <int>{1, 2, 3, 4, 5, 6};
+
+    TimeOfDay workStart = const TimeOfDay(hour: 8, minute: 0);
+    TimeOfDay workEnd = const TimeOfDay(hour: 18, minute: 0);
+
+    bool hasLunchBreak = true;
+    TimeOfDay lunchStart = const TimeOfDay(hour: 12, minute: 0);
+    TimeOfDay lunchEnd = const TimeOfDay(hour: 13, minute: 0);
+
+    final noteController = TextEditingController(text: 'Expediente');
+    final formKey = GlobalKey<FormState>();
+    bool isSaving = false;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            title: const Row(
+              children: [
+                Icon(
+                  Icons.add_business_outlined,
+                  color: AppTheme.primaryAccentColor,
+                ),
+                SizedBox(width: 10),
+                Text(
+                  'Definir Horário de Trabalho',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: 440,
+              child: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Seletor de Modo: Dia Único vs Período
+                      SegmentedButton<bool>(
+                        segments: const [
+                          ButtonSegment(value: false, label: Text('Dia Único')),
+                          ButtonSegment(
+                            value: true,
+                            label: Text('Vários Dias'),
+                          ),
+                        ],
+                        selected: {isPeriodMode},
+                        onSelectionChanged: (val) {
+                          setDialogState(() => isPeriodMode = val.first);
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Seleção de Data ou Período
+                      if (!isPeriodMode)
+                        InkWell(
+                          onTap: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: selectedDate,
+                              firstDate: DateTime.now().subtract(
+                                const Duration(days: 1),
+                              ),
+                              lastDate: DateTime.now().add(
+                                const Duration(days: 365),
+                              ),
+                            );
+                            if (picked != null) {
+                              setDialogState(() => selectedDate = picked);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade400),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('Data:'),
+                                Text(
+                                  '${DateFormat('dd/MM/yyyy').format(selectedDate)} (${_getWeekdayShort(selectedDate.weekday)})',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.primaryAccentColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      else ...[
+                        InkWell(
+                          onTap: () async {
+                            final picked = await showDateRangePicker(
+                              context: context,
+                              initialDateRange: periodRange,
+                              firstDate: DateTime.now().subtract(
+                                const Duration(days: 1),
+                              ),
+                              lastDate: DateTime.now().add(
+                                const Duration(days: 365),
+                              ),
+                            );
+                            if (picked != null) {
+                              setDialogState(() => periodRange = picked);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade400),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('Período:'),
+                                Text(
+                                  periodRange != null
+                                      ? '${DateFormat('dd/MM').format(periodRange!.start)} até ${DateFormat('dd/MM/yyyy').format(periodRange!.end)}'
+                                      : 'Selecione o período',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.primaryAccentColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Dias de atendimento na semana:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            for (final entry in [
+                              MapEntry(1, 'Seg'),
+                              MapEntry(2, 'Ter'),
+                              MapEntry(3, 'Qua'),
+                              MapEntry(4, 'Qui'),
+                              MapEntry(5, 'Sex'),
+                              MapEntry(6, 'Sáb'),
+                              MapEntry(7, 'Dom'),
+                            ])
+                              FilterChip(
+                                label: Text(entry.value),
+                                selected: selectedWeekdays.contains(entry.key),
+                                onSelected: (selected) {
+                                  setDialogState(() {
+                                    if (selected) {
+                                      selectedWeekdays.add(entry.key);
+                                    } else if (selectedWeekdays.length > 1) {
+                                      selectedWeekdays.remove(entry.key);
+                                    }
+                                  });
+                                },
+                              ),
+                          ],
+                        ),
+                      ],
+
+                      const SizedBox(height: 16),
+                      const Divider(),
+                      const SizedBox(height: 8),
+
+                      // Horário de Expediente
+                      const Text(
+                        'Horário de Expediente',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () async {
+                                final picked = await showTimePicker(
+                                  context: context,
+                                  initialTime: workStart,
+                                  builder: (context, child) => MediaQuery(
+                                    data: MediaQuery.of(
+                                      context,
+                                    ).copyWith(alwaysUse24HourFormat: true),
+                                    child: child!,
+                                  ),
+                                );
+                                if (picked != null) {
+                                  setDialogState(() => workStart = picked);
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                  horizontal: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Início:',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    Text(
+                                      _formatTime24h(workStart),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () async {
+                                final picked = await showTimePicker(
+                                  context: context,
+                                  initialTime: workEnd,
+                                  builder: (context, child) => MediaQuery(
+                                    data: MediaQuery.of(
+                                      context,
+                                    ).copyWith(alwaysUse24HourFormat: true),
+                                    child: child!,
+                                  ),
+                                );
+                                if (picked != null) {
+                                  setDialogState(() => workEnd = picked);
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                  horizontal: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Fim:',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    Text(
+                                      _formatTime24h(workEnd),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Intervalo de Almoço Opcional
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text(
+                          'Intervalo de Almoço',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        subtitle: const Text(
+                          'Bloqueia automaticamente o horário de almoço',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        value: hasLunchBreak,
+                        onChanged: (val) =>
+                            setDialogState(() => hasLunchBreak = val),
+                      ),
+
+                      if (hasLunchBreak) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () async {
+                                  final picked = await showTimePicker(
+                                    context: context,
+                                    initialTime: lunchStart,
+                                    builder: (context, child) => MediaQuery(
+                                      data: MediaQuery.of(
+                                        context,
+                                      ).copyWith(alwaysUse24HourFormat: true),
+                                      child: child!,
+                                    ),
+                                  );
+                                  if (picked != null) {
+                                    setDialogState(() => lunchStart = picked);
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                    horizontal: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.grey.shade400,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Início Almoço:',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      Text(
+                                        _formatTime24h(lunchStart),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () async {
+                                  final picked = await showTimePicker(
+                                    context: context,
+                                    initialTime: lunchEnd,
+                                    builder: (context, child) => MediaQuery(
+                                      data: MediaQuery.of(
+                                        context,
+                                      ).copyWith(alwaysUse24HourFormat: true),
+                                      child: child!,
+                                    ),
+                                  );
+                                  if (picked != null) {
+                                    setDialogState(() => lunchEnd = picked);
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                    horizontal: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.grey.shade400,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Fim Almoço:',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      Text(
+                                        _formatTime24h(lunchEnd),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: isSaving ? null : () => Navigator.pop(context),
+                child: const Text(
+                  'Cancelar',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              isSaving
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryAccentColor,
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () async {
+                        final startMinutes =
+                            workStart.hour * 60 + workStart.minute;
+                        final endMinutes = workEnd.hour * 60 + workEnd.minute;
+
+                        if (endMinutes <= startMinutes) {
+                          AppToast.error(
+                            context,
+                            message:
+                                'O horário de término do expediente deve ser após o horário de início.',
+                          );
+                          return;
+                        }
+
+                        if (hasLunchBreak) {
+                          final lunchStartMin =
+                              lunchStart.hour * 60 + lunchStart.minute;
+                          final lunchEndMin =
+                              lunchEnd.hour * 60 + lunchEnd.minute;
+                          if (lunchEndMin <= lunchStartMin) {
+                            AppToast.error(
+                              context,
+                              message:
+                                  'O fim do almoço deve ser após o início do almoço.',
+                            );
+                            return;
+                          }
+                          if (lunchStartMin < startMinutes ||
+                              lunchEndMin > endMinutes) {
+                            AppToast.error(
+                              context,
+                              message:
+                                  'O horário de almoço deve estar dentro do horário de expediente.',
+                            );
+                            return;
+                          }
+                        }
+
+                        setDialogState(() => isSaving = true);
+
+                        try {
+                          final List<WorkScheduleEntity> batchItems = [];
+                          final datesToProcess = <DateTime>[];
+
+                          if (!isPeriodMode) {
+                            datesToProcess.add(selectedDate);
+                          } else if (periodRange != null) {
+                            var current = periodRange!.start;
+                            final end = periodRange!.end;
+                            while (!current.isAfter(end)) {
+                              if (selectedWeekdays.contains(current.weekday)) {
+                                datesToProcess.add(current);
+                              }
+                              current = current.add(const Duration(days: 1));
+                            }
+                          }
+
+                          for (final d in datesToProcess) {
+                            // Turno de trabalho
+                            final shiftStart = DateTime(
+                              d.year,
+                              d.month,
+                              d.day,
+                              workStart.hour,
+                              workStart.minute,
+                            );
+                            final shiftEnd = DateTime(
+                              d.year,
+                              d.month,
+                              d.day,
+                              workEnd.hour,
+                              workEnd.minute,
+                            );
+
+                            batchItems.add(
+                              WorkScheduleEntity(
+                                id: '',
+                                startTime: shiftStart,
+                                endTime: shiftEnd,
+                                isBlocked: false,
+                                note: noteController.text.trim().isNotEmpty
+                                    ? noteController.text.trim()
+                                    : 'Expediente',
+                                createdAt: DateTime.now(),
+                              ),
+                            );
+
+                            // Almoço (se habilitado)
+                            if (hasLunchBreak) {
+                              final lStart = DateTime(
+                                d.year,
+                                d.month,
+                                d.day,
+                                lunchStart.hour,
+                                lunchStart.minute,
+                              );
+                              final lEnd = DateTime(
+                                d.year,
+                                d.month,
+                                d.day,
+                                lunchEnd.hour,
+                                lunchEnd.minute,
+                              );
+                              batchItems.add(
+                                WorkScheduleEntity(
+                                  id: '',
+                                  startTime: lStart,
+                                  endTime: lEnd,
+                                  isBlocked: true,
+                                  note: 'Almoço',
+                                  createdAt: DateTime.now(),
+                                ),
+                              );
+                            }
+                          }
+
+                          await ref
+                              .read(workSchedulesListProvider.notifier)
+                              .addWorkShiftsBatch(batchItems);
+
+                          if (context.mounted) {
+                            AppToast.success(
+                              context,
+                              message:
+                                  '${datesToProcess.length} dia(s) de atendimento configurado(s) com sucesso!',
+                            );
+                            Navigator.pop(context);
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            AppToast.error(
+                              context,
+                              message: AppErrorFormatter.format(
+                                e,
+                                prefix: 'Erro ao salvar horários',
+                              ),
+                            );
+                          }
+                        } finally {
+                          if (context.mounted) {
+                            setDialogState(() => isSaving = false);
+                          }
+                        }
+                      },
+                      child: const Text('Salvar Horários'),
+                    ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // Formulário para Cadastrar Bloqueio Pontual / Folga
+  void _showBlockForm() {
+    DateTime selectedDate = DateTime.now();
     DateTime? endDate;
     TimeOfDay startTime = const TimeOfDay(hour: 8, minute: 0);
     TimeOfDay endTime = const TimeOfDay(hour: 18, minute: 0);
@@ -1088,7 +1952,6 @@ class _AdminPageState extends ConsumerState<AdminPage>
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
-          DateFormat('dd/MM/yyyy').format(selectedDate);
           final startTimeStr = _formatTime24h(startTime);
           final endTimeStr = _formatTime24h(endTime);
 
@@ -1097,9 +1960,15 @@ class _AdminPageState extends ConsumerState<AdminPage>
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
             ),
-            title: const Text(
-              'Bloquear Horário',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            title: const Row(
+              children: [
+                Icon(Icons.block_outlined, color: Colors.orange),
+                SizedBox(width: 10),
+                Text(
+                  'Adicionar Bloqueio / Pausa',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ],
             ),
             content: Form(
               key: formKey,
@@ -1108,10 +1977,9 @@ class _AdminPageState extends ConsumerState<AdminPage>
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Campo Nota / Motivo
                     AppTextField(
                       controller: noteController,
-                      labelText: 'Motivo (Ex: Médico, Férias)',
+                      labelText: 'Motivo (Ex: Médico, Folga, Reunião)',
                       validator: (value) =>
                           value == null || value.trim().isEmpty
                           ? 'Insira um motivo ou descrição'
@@ -1119,7 +1987,7 @@ class _AdminPageState extends ConsumerState<AdminPage>
                     ),
                     const SizedBox(height: 16),
 
-                    // Botão Selecionar Data
+                    // Seleção de Data
                     InkWell(
                       onTap: () async {
                         final picked = await showDateRangePicker(
@@ -1172,25 +2040,21 @@ class _AdminPageState extends ConsumerState<AdminPage>
                     ),
                     const SizedBox(height: 12),
 
-                    // Botão Selecionar Hora Início
+                    // Hora Início
                     InkWell(
                       onTap: () async {
                         final picked = await showTimePicker(
                           context: context,
                           initialTime: startTime,
-                          builder: (context, child) {
-                            return MediaQuery(
-                              data: MediaQuery.of(
-                                context,
-                              ).copyWith(alwaysUse24HourFormat: true),
-                              child: child!,
-                            );
-                          },
+                          builder: (context, child) => MediaQuery(
+                            data: MediaQuery.of(
+                              context,
+                            ).copyWith(alwaysUse24HourFormat: true),
+                            child: child!,
+                          ),
                         );
                         if (picked != null) {
-                          setDialogState(() {
-                            startTime = picked;
-                          });
+                          setDialogState(() => startTime = picked);
                         }
                       },
                       child: Container(
@@ -1219,25 +2083,21 @@ class _AdminPageState extends ConsumerState<AdminPage>
                     ),
                     const SizedBox(height: 12),
 
-                    // Botão Selecionar Hora Fim
+                    // Hora Fim
                     InkWell(
                       onTap: () async {
                         final picked = await showTimePicker(
                           context: context,
                           initialTime: endTime,
-                          builder: (context, child) {
-                            return MediaQuery(
-                              data: MediaQuery.of(
-                                context,
-                              ).copyWith(alwaysUse24HourFormat: true),
-                              child: child!,
-                            );
-                          },
+                          builder: (context, child) => MediaQuery(
+                            data: MediaQuery.of(
+                              context,
+                            ).copyWith(alwaysUse24HourFormat: true),
+                            child: child!,
+                          ),
                         );
                         if (picked != null) {
-                          setDialogState(() {
-                            endTime = picked;
-                          });
+                          setDialogState(() => endTime = picked);
                         }
                       },
                       child: Container(
@@ -1283,12 +2143,15 @@ class _AdminPageState extends ConsumerState<AdminPage>
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
+                      ),
                       onPressed: () async {
                         if (formKey.currentState!.validate()) {
                           final isMultiDay =
                               endDate != null && endDate != selectedDate;
 
-                          // Calcular start DateTime e end DateTime
                           final startDateTime = DateTime(
                             selectedDate.year,
                             selectedDate.month,
@@ -1361,22 +2224,25 @@ class _AdminPageState extends ConsumerState<AdminPage>
     );
   }
 
-  void _confirmDeleteSchedule(String id, String note) {
+  void _confirmDeleteSchedule(String id, String label) {
     showDialog(
       context: context,
       builder: (dialogCtx) => AppDialog(
-        title: 'Excluir Bloqueio',
-        message: 'Deseja realmente remover o bloqueio "$note"?',
+        title: 'Excluir Registro',
+        message:
+            'Deseja realmente remover "$label"? Se for um horário de expediente, o dia ficará fechado caso não haja outros horários cadastrados.',
         confirmLabel: 'Excluir',
         cancelLabel: 'Voltar',
         isDestructive: true,
         onConfirm: () async {
           try {
-            await ref.read(workSchedulesListProvider.notifier).deleteBlock(id);
+            await ref
+                .read(workSchedulesListProvider.notifier)
+                .deleteSchedule(id);
             if (mounted) {
               AppToast.success(
                 context,
-                message: 'Bloqueio removido com sucesso!',
+                message: 'Registro removido com sucesso!',
               );
             }
           } catch (e) {

@@ -43,7 +43,29 @@ class AdminRepositoryImpl implements AdminRepository {
   }
 
   @override
+  Future<void> addWorkSchedulesBatch(List<WorkScheduleEntity> entities) {
+    final models = entities
+        .map(
+          (entity) => WorkScheduleModel(
+            id: entity.id,
+            startTime: entity.startTime,
+            endTime: entity.endTime,
+            isBlocked: entity.isBlocked,
+            note: entity.note,
+            createdAt: entity.createdAt,
+          ),
+        )
+        .toList();
+    return remoteDatasource.addWorkSchedulesBatch(models);
+  }
+
+  @override
   Future<void> deleteWorkSchedule(String id) {
     return remoteDatasource.deleteWorkSchedule(id);
+  }
+
+  @override
+  Future<void> deleteSchedulesForDate(DateTime date) {
+    return remoteDatasource.deleteSchedulesForDate(date);
   }
 }
